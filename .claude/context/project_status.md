@@ -4,7 +4,7 @@
 ---
 
 ## Estado actual
-- **Fase**: FASE 2 COMPLETADA — schema de base de datos en producción
+- **Fase**: HU-01 COMPLETADA — login con Google funcionando
 - **Sprint activo**: 1 (desarrollo de módulos)
 - **Rama activa**: master
 
@@ -14,49 +14,59 @@
 - ✅ Sistema de agentes (6 agentes, 3 skills)
 - ✅ Stack base: Vite + React 18 + TS6 + Bun + shadcn/ui + Tailwind v4
 - ✅ Screaming Architecture: 7 módulos de negocio
-- ✅ 6 migraciones SQL ejecutadas en Supabase (7 tablas)
-- ✅ RLS habilitado en las 7 tablas (user_isolation)
-- ✅ Tipos Supabase generados y tipados (supabase.types.ts real)
-- ✅ schema.md actualizado por módulo
-- ✅ DEC-07 registrada (schema canónico MVP)
-- ✅ Build limpio — TypeScript + Vite sin errores
+- ✅ 7 tablas en Supabase con RLS (HU-00)
+- ✅ Tipos Supabase generados (supabase.types.ts)
+- ✅ HU-01: auth.service + auth.store + LoginPage (13 tests, 94% cobertura)
+- ✅ App.tsx con guardia de sesión (sin sesión → LoginPage)
+- ✅ Reviewer: APROBADO CON OBSERVACIONES
 
 ---
 
-## Tablas en Supabase (cwphowtjsowyovikupqj)
-| Tabla               | Módulo     | RLS |
-|---------------------|------------|-----|
-| clientes            | clientes   | ✅  |
-| ventas              | ventas     | ✅  |
-| cuotas              | cobros     | ✅  |
-| abonos              | cobros     | ✅  |
-| movimientos_caja    | caja       | ✅  |
-| productos           | inventario | ✅  |
-| compras_inventario  | inventario | ✅  |
+## Estructura del módulo auth
+```
+src/auth/
+  auth.types.ts           ← Session, AuthState
+  auth.service.ts         ← loginConGoogle, cerrarSesion, obtenerSesionActiva
+  auth.store.ts           ← Zustand: session, cargando, inicializarSesion
+  index.ts                ← barrel: useAuthStore, Session, AuthState
+  components/
+    LoginPage.tsx         ← página de login mobile-first
+    __tests__/
+      LoginPage.test.tsx
+  __tests__/
+    auth.service.test.ts
+    auth.store.test.ts
+```
 
 ---
 
-## Siguiente sesión — FASE 3: Módulo auth
-Tarea: implementar login/logout con Supabase Auth
-1. Activar Agente Testing — escribir tests de auth.service en rojo
-2. Activar Agente Backend — implementar auth.service (login, logout, getUser)
-3. Activar Agente Frontend — LoginPage con form + validación
-4. Test E2E básico con Playwright
-
-HU a resolver: HU-01 — "Como operador, quiero iniciar sesión para acceder al sistema"
+## Configuración pendiente — REQUIERE ACCIÓN MANUAL
+⚠️ **Supabase OAuth con Google no está configurado todavía.**
+Para que el login funcione en el navegador:
+1. Supabase Dashboard → Authentication → Providers → Google → Enable
+2. Google Cloud Console → OAuth 2.0 Client ID
+3. Authorized redirect URI: `https://cwphowtjsowyovikupqj.supabase.co/auth/v1/callback`
+4. Pegar Client ID + Secret en Supabase
 
 ---
 
-## Bloqueadores activos
-*(ninguno)*
+## Siguiente sesión — HU-02: módulo clientes
+Tarea: CRUD completo de clientes (crear, listar, ver detalle)
+Secuencia TDD:
+1. Testing → clientes.utils.test.ts + clientes.service.test.ts en rojo
+2. Backend → clientes.service.ts + clientes.types.ts
+3. Frontend → ListaClientes.tsx + FormCliente.tsx
+4. Routing con react-router-dom (primera ruta real post-login)
 
 ---
 
 ## Deuda técnica registrada
-- [ ] Mover `src/components/ui/` a `src/shared/components/ui/` cuando un segundo módulo use los componentes (DEC-06)
+- [ ] Test: `obtenerSesionActiva()` lanza error si getSession falla (auth.service línea 20)
+- [ ] Test: callback `onAuthStateChange` en auth.store (línea 34)
+- [ ] Mover `src/components/ui/` a `src/shared/components/ui/` (DEC-06, cuando 2do módulo los use)
 - [ ] Configurar GitHub Actions (lint + test en cada PR)
-- [ ] Crear seed.sql con datos de prueba para desarrollo
+- [ ] Configurar Google OAuth en Supabase Dashboard
 
 ---
 
-*Última actualización: 2026-04-22 — cierre HU-00 schema base*
+*Última actualización: 2026-04-22 — cierre HU-01 auth login Google*
