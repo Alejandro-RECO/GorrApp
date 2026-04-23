@@ -4,61 +4,59 @@
 ---
 
 ## Estado actual
-- **Fase**: FASE 1 COMPLETADA — stack base inicializado
+- **Fase**: FASE 2 COMPLETADA — schema de base de datos en producción
 - **Sprint activo**: 1 (desarrollo de módulos)
 - **Rama activa**: master
 
 ---
 
 ## Hitos completados
-- ✅ Sistema de agentes definido (6 agentes, 3 skills)
-- ✅ Stack base: Vite + React 18 + TS6 + Bun
-- ✅ Tailwind CSS v4 + shadcn/ui (10 componentes base)
-- ✅ Supabase JS client configurado
-- ✅ Zustand instalado
-- ✅ Vitest + Testing Library + Playwright configurados
+- ✅ Sistema de agentes (6 agentes, 3 skills)
+- ✅ Stack base: Vite + React 18 + TS6 + Bun + shadcn/ui + Tailwind v4
 - ✅ Screaming Architecture: 7 módulos de negocio
-- ✅ shared/lib/supabase.ts — cliente singleton tipado
-- ✅ shared/lib/utils.ts — cn + formatearPesos
-- ✅ app/router.tsx — RUTAS con todas las rutas del dominio
-- ✅ Contexto .claude por módulo (context.md + schema.md)
-- ✅ Carpeta de migraciones con README
-- ✅ Commit inicial pusheado a GitHub
+- ✅ 6 migraciones SQL ejecutadas en Supabase (7 tablas)
+- ✅ RLS habilitado en las 7 tablas (user_isolation)
+- ✅ Tipos Supabase generados y tipados (supabase.types.ts real)
+- ✅ schema.md actualizado por módulo
+- ✅ DEC-07 registrada (schema canónico MVP)
+- ✅ Build limpio — TypeScript + Vite sin errores
 
 ---
 
-## En progreso ahora
-*(nada — fase de setup cerrada)*
+## Tablas en Supabase (cwphowtjsowyovikupqj)
+| Tabla               | Módulo     | RLS |
+|---------------------|------------|-----|
+| clientes            | clientes   | ✅  |
+| ventas              | ventas     | ✅  |
+| cuotas              | cobros     | ✅  |
+| abonos              | cobros     | ✅  |
+| movimientos_caja    | caja       | ✅  |
+| productos           | inventario | ✅  |
+| compras_inventario  | inventario | ✅  |
 
 ---
 
-## Siguiente sesión — FASE 2: Schema de base de datos
-1. Definir schema SQL completo (tablas: clientes, ventas, cuotas, abonos, movimientos_caja, productos)
-2. Crear migración inicial en src/supabase/migrations/
-3. Aplicar en Supabase Dashboard
-4. Regenerar tipos: npx supabase gen types typescript --project-id cwphowtjsowyovikupqj --schema public > src/shared/types/supabase.types.ts
-5. Activar Agente Arquitecto para validar schema vs domain.md
+## Siguiente sesión — FASE 3: Módulo auth
+Tarea: implementar login/logout con Supabase Auth
+1. Activar Agente Testing — escribir tests de auth.service en rojo
+2. Activar Agente Backend — implementar auth.service (login, logout, getUser)
+3. Activar Agente Frontend — LoginPage con form + validación
+4. Test E2E básico con Playwright
+
+HU a resolver: HU-01 — "Como operador, quiero iniciar sesión para acceder al sistema"
 
 ---
 
 ## Bloqueadores activos
-- ⚠️ Supabase CLI requiere token de acceso para `gen types`. Workaround: copiar SQL desde Dashboard y generar tipos manualmente, o hacer login con `npx supabase login` antes de la próxima sesión.
-
----
-
-## Notas técnicas importantes
-- shadcn coloca componentes en `src/components/ui/` (su default) — NO en `src/shared/components/ui/`. Aceptado por ahora; mover a shared/ si un segundo módulo lo requiere (DEC-06).
-- TS6 no necesita `baseUrl` para path aliases — solo `paths` en tsconfig.
-- `vite.config.ts` usa `defineConfig` de `vitest/config` para tipado correcto del bloque `test`.
-- `supabase.types.ts` es un placeholder — regenerar cuando haya schema real.
+*(ninguno)*
 
 ---
 
 ## Deuda técnica registrada
 - [ ] Mover `src/components/ui/` a `src/shared/components/ui/` cuando un segundo módulo use los componentes (DEC-06)
-- [ ] Regenerar tipos de Supabase tras primera migración
 - [ ] Configurar GitHub Actions (lint + test en cada PR)
+- [ ] Crear seed.sql con datos de prueba para desarrollo
 
 ---
 
-*Última actualización: 2026-04-22 — cierre de sesión FASE 1*
+*Última actualización: 2026-04-22 — cierre HU-00 schema base*
