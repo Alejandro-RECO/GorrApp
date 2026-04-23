@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAuthStore } from '@/auth'
 import { LoginPage } from '@/auth/components/LoginPage'
+import { AppRoutes } from './router'
 
 function App() {
   const { session, inicializarSesion } = useAuthStore()
@@ -15,7 +16,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <h1 className="text-2xl font-bold p-4">GorrApp</h1>
+      <AppRoutes />
     </div>
   )
 }

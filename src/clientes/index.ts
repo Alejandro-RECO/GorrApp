@@ -1,1 +1,5 @@
-export {}
+export type { Cliente, CrearCliente, ActualizarCliente, CuotaResumen } from './clientes.types'
+export { useClientesStore } from './clientes.store'
+export { calcularDeudaTotal, estaEnMora } from './clientes.utils'
+export { ListaClientes } from './components/ListaClientes'
+export { DetalleCliente } from './components/DetalleCliente'

@@ -1,3 +1,6 @@
+import { Routes, Route } from 'react-router-dom'
+import { ListaClientes, DetalleCliente } from '@/clientes'
+
 export const RUTAS = {
   inicio: "/",
   ventas: {
@@ -29,3 +32,12 @@ export const RUTAS = {
     login: "/login",
   },
 } as const
+
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route path={RUTAS.clientes.lista} element={<ListaClientes />} />
+      <Route path={`${RUTAS.clientes.lista}/:id`} element={<DetalleCliente />} />
+    </Routes>
+  )
+}
