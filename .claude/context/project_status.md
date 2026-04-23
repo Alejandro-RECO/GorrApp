@@ -4,7 +4,7 @@
 ---
 
 ## Estado actual
-- **Fase**: HU-02 COMPLETADA — módulo clientes con CRUD y vista de deuda
+- **Fase**: HU-03 COMPLETADA — módulo ventas con contado y fiado
 - **Sprint activo**: 1 (desarrollo de módulos)
 - **Rama activa**: master
 
@@ -17,33 +17,42 @@
 - ✅ 7 tablas en Supabase con RLS (HU-00)
 - ✅ Tipos Supabase generados (supabase.types.ts)
 - ✅ HU-01: auth.service + auth.store + LoginPage (13 tests, 94% cobertura)
-- ✅ App.tsx con guardia de sesión (sin sesión → LoginPage)
 - ✅ HU-02: módulo clientes CRUD completo (43 tests, 85.45% cobertura)
-- ✅ Routing con react-router-dom v7: /clientes y /clientes/:id
+- ✅ HU-03: módulo ventas contado y fiado (80 tests, 90.32% cobertura ventas)
+- ✅ Routing con react-router-dom v7: /clientes, /ventas, /ventas/nueva
+- ✅ DetalleCliente con historial de compras real (via ListaVentas)
 - ✅ supabase.mock extendido con mockQueryBuilder (chainable + thenable)
 
 ---
 
-## Estructura del módulo clientes (HU-02)
+## Estructura del módulo ventas (HU-03)
 ```
-src/clientes/
-  clientes.types.ts         ← Cliente, CuotaResumen, CrearCliente, ActualizarCliente
-  clientes.utils.ts         ← calcularDeudaTotal, estaEnMora
-  clientes.service.ts       ← CRUD Supabase + join cuotas vía ventas
-  clientes.store.ts         ← Zustand: clientes, cargando, error + acciones
-  index.ts                  ← barrel público
+src/ventas/
+  ventas.types.ts         ← Venta, CrearVenta, TipoVenta, MedioPago, CuotaCalculada
+  ventas.utils.ts         ← calcularCuotas (15/30 días), calcularTotalVenta, validarVenta
+  ventas.service.ts       ← crear() transacción atómica + compensating delete,
+                            obtenerTodos(), obtenerPorCliente()
+  ventas.store.ts         ← Zustand: ventas, cargarVentas, agregarVenta, cargarVentasPorCliente
+  index.ts                ← barrel público
   components/
-    FormCliente.tsx          ← form con validación inline
-    ListaClientes.tsx        ← lista con badge "En mora" y deuda total
-    DetalleCliente.tsx       ← detalle con placeholder historial ventas
+    FormVenta.tsx          ← form nativo con preview cuotas fiadas
+    ListaVentas.tsx        ← lista con badge Contado/Fiado, acepta clienteId prop
+    ResumenCuotas.tsx      ← preview cuotas calculadas con fechas
     __tests__/
-      FormCliente.test.tsx
-      ListaClientes.test.tsx
+      FormVenta.test.tsx
+      ListaVentas.test.tsx
   __tests__/
-    clientes.utils.test.ts
-    clientes.service.test.ts
-    clientes.store.test.ts
+    ventas.utils.test.ts
+    ventas.service.test.ts
+    ventas.store.test.ts
 ```
+
+---
+
+## Decisión arquitectural aplicada (HU-03)
+- `DetalleCliente` NO importa de `@/ventas` (Regla 3 Screaming Architecture)
+- Composición en `app/router.tsx` via `ClienteConHistorial` wrapper component
+- `ListaVentas` acepta `clienteId?: string` prop para filtrar por cliente
 
 ---
 
@@ -56,25 +65,27 @@ src/clientes/
 
 ---
 
-## Siguiente sesión — HU-03: módulo ventas
-Tarea: Registrar venta (contado y fiada), cálculo de cuotas.
+## Siguiente sesión — HU-04: módulo cobros
+Tarea: Gestionar cuotas pendientes y registrar abonos.
+Entidades: Cuota (leer), Abono (crear)
 Secuencia TDD:
-1. Testing → ventas.utils.test.ts (calcularCuotas) en rojo
-2. Backend → ventas.service.ts + ventas.types.ts
-3. Frontend → FormVenta.tsx + ListaVentas.tsx
-4. Conectar a clientes.store para mostrar ventas en DetalleCliente
+1. Testing → cobros.utils.test.ts + cobros.service.test.ts en rojo
+2. Backend → cobros.service.ts (obtenerCuotasPendientes, registrarAbono)
+3. Frontend → ListaCobros.tsx + FormAbono.tsx
+4. Conectar: DetalleCliente actualiza cuotas al abonar
 
 ---
 
 ## Deuda técnica registrada
 - [ ] Test: `obtenerSesionActiva()` lanza error si getSession falla (auth.service línea 20)
 - [ ] Test: callback `onAuthStateChange` en auth.store (línea 34)
-- [ ] DEC-06: Mover `src/components/ui/` a `src/shared/components/ui/` (2do módulo usa shadcn — condición cumplida, ejecutar en HU-03 o sesión separada)
-- [ ] Test: DetalleCliente (componente sin tests propios)
+- [ ] DEC-06: Mover `src/components/ui/` a `src/shared/components/ui/` (ejecutar en HU-04)
+- [ ] Test: DetalleCliente sin tests propios
 - [ ] Test: ListaClientes.tsx onGuardar closures (líneas 48-61)
+- [ ] Test: ventas.service.ts compensating delete branch (líneas 37-38)
 - [ ] Configurar GitHub Actions (lint + test en cada PR)
 - [ ] Configurar Google OAuth en Supabase Dashboard
 
 ---
 
-*Última actualización: 2026-04-23 — cierre HU-02 módulo clientes*
+*Última actualización: 2026-04-23 — cierre HU-03 módulo ventas*
