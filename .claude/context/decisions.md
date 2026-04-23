@@ -100,6 +100,28 @@
 
 ---
 
+## [DEC-07] Schema canónico del MVP — 7 tablas
+- **Fecha**: 2026-04-22
+- **Estado**: APROBADA
+- **Contexto**: Necesidad de definir el schema de base de datos antes de
+  iniciar cualquier implementación de módulos. El schema debe reflejar
+  exactamente las reglas de negocio del domain.md.
+- **Decisión**: 7 tablas en PostgreSQL (Supabase): clientes, ventas,
+  cuotas, abonos, movimientos_caja, productos, compras_inventario.
+  Orden de migraciones: 001→006. RLS habilitado en todas las tablas.
+  Todos los valores monetarios en centavos COP como INTEGER.
+- **Razón**: INTEGER evita errores de punto flotante en dinero.
+  RLS single-policy (FOR ALL) es suficiente para el modelo de un
+  solo operador por cuenta. FK soft en movimientos_caja.referencia_id
+  desacopla caja de ventas/cobros en nivel DB.
+- **Consecuencias**: 
+  - Toda lógica de negocio (calcular cuotas, actualizar estado de
+    cuota al recibir abono, actualizar stock) vive en los services
+    del cliente — no en triggers SQL.
+  - `reportes/` no tiene tablas propias — solo queries de lectura.
+  - El schema.md de cada módulo es la referencia para su service.
+
+---
+
 *Próximas decisiones pendientes:*
-- [ ] Schema de base de datos (tablas y relaciones)
 - [ ] Estrategia de manejo de errores en el cliente
