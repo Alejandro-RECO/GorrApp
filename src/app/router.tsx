@@ -1,5 +1,11 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useParams } from 'react-router-dom'
 import { ListaClientes, DetalleCliente } from '@/clientes'
+import { ListaVentas, FormVenta } from '@/ventas'
+
+function ClienteConHistorial() {
+  const { id } = useParams<{ id: string }>()
+  return <DetalleCliente historial={<ListaVentas clienteId={id} />} />
+}
 
 export const RUTAS = {
   inicio: "/",
@@ -37,7 +43,9 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path={RUTAS.clientes.lista} element={<ListaClientes />} />
-      <Route path={`${RUTAS.clientes.lista}/:id`} element={<DetalleCliente />} />
+      <Route path={`${RUTAS.clientes.lista}/:id`} element={<ClienteConHistorial />} />
+      <Route path={RUTAS.ventas.lista} element={<ListaVentas />} />
+      <Route path={RUTAS.ventas.nueva} element={<FormVenta />} />
     </Routes>
   )
 }
