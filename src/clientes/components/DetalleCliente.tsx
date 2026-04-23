@@ -6,7 +6,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { formatearPesos } from '@/shared/lib/utils'
 import { useClientesStore, calcularDeudaTotal, estaEnMora } from '@/clientes'
 
-export function DetalleCliente() {
+interface Props {
+  historial?: React.ReactNode
+}
+
+export function DetalleCliente({ historial }: Props) {
   const { id } = useParams<{ id: string }>()
   const { clientes, cargando, cargarClientes } = useClientesStore()
 
@@ -66,14 +70,14 @@ export function DetalleCliente() {
         )}
       </Card>
 
-      <Card className="p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">
-          Historial de compras
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Disponible cuando se implemente el módulo de ventas.
-        </p>
-      </Card>
+      {historial && (
+        <div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2 px-1">
+            Historial de compras
+          </p>
+          {historial}
+        </div>
+      )}
     </div>
   )
 }
