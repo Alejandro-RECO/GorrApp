@@ -31,3 +31,4 @@ playwright-report
 test-results
 *.stackdump
 .claude/settings.local.json
+supabase/.temp/
