@@ -1,14 +1,13 @@
 import { create } from 'zustand'
 import { VentasService } from './ventas.service'
-import type { Venta, CrearVenta } from './ventas.types'
+import type { CrearVenta, VentaConCliente } from './ventas.types'
 
 interface VentasState {
-  ventas: Venta[]
+  ventas: VentaConCliente[]
   cargando: boolean
   error: string | null
   cargarVentas: () => Promise<void>
   agregarVenta: (datos: CrearVenta) => Promise<void>
-  cargarVentasPorCliente: (clienteId: string) => Promise<void>
 }
 
 export const useVentasStore = create<VentasState>((set) => ({
@@ -29,20 +28,11 @@ export const useVentasStore = create<VentasState>((set) => ({
   agregarVenta: async (datos) => {
     set({ cargando: true, error: null })
     try {
-      const nueva = await VentasService.crear(datos)
-      set(state => ({ ventas: [nueva, ...state.ventas], cargando: false }))
-    } catch {
-      set({ error: 'No se pudo registrar la venta', cargando: false })
-    }
-  },
-
-  cargarVentasPorCliente: async (clienteId) => {
-    set({ cargando: true, error: null })
-    try {
-      const ventas = await VentasService.obtenerPorCliente(clienteId)
+      await VentasService.crear(datos)
+      const ventas = await VentasService.obtenerTodos()
       set({ ventas, cargando: false })
     } catch {
-      set({ error: 'No se pudieron cargar las ventas del cliente', cargando: false })
+      set({ error: 'No se pudo registrar la venta', cargando: false })
     }
   },
 }))

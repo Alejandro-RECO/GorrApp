@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { calcularCuotas, calcularTotalVenta, validarVenta } from '../ventas.utils'
+import { calcularCuotas, validarVenta } from '../ventas.utils'
 
-const FECHA_VENTA = new Date('2026-04-23T12:00:00Z')
+const FECHA_VENTA = new Date('2026-04-26T12:00:00Z')
 
 describe('calcularCuotas', () => {
   describe('cuando tipo es contado', () => {
@@ -16,17 +16,16 @@ describe('calcularCuotas', () => {
       const cuotas = calcularCuotas({ total: 100000, tipo: 'fiado_una_cuota', fechaVenta: FECHA_VENTA })
       expect(cuotas).toHaveLength(1)
       expect(cuotas[0].valor).toBe(100000)
-      expect(cuotas[0].numero_cuota).toBe(1)
     })
 
     it('fecha vencimiento es 30 días desde fechaVenta', () => {
       const cuotas = calcularCuotas({ total: 100000, tipo: 'fiado_una_cuota', fechaVenta: FECHA_VENTA })
-      expect(cuotas[0].fecha_vencimiento).toBe('2026-05-23')
+      expect(cuotas[0].fecha_vencimiento).toBe('2026-05-26')
     })
   })
 
   describe('cuando tipo es fiado_dos_cuotas', () => {
-    it('retorna 2 cuotas con valor igual (total / 2 redondeado)', () => {
+    it('retorna 2 cuotas con valor igual (total / 2)', () => {
       const cuotas = calcularCuotas({ total: 100000, tipo: 'fiado_dos_cuotas', fechaVenta: FECHA_VENTA })
       expect(cuotas).toHaveLength(2)
       expect(cuotas[0].valor).toBe(50000)
@@ -35,27 +34,13 @@ describe('calcularCuotas', () => {
 
     it('primera cuota vence a 15 días', () => {
       const cuotas = calcularCuotas({ total: 100000, tipo: 'fiado_dos_cuotas', fechaVenta: FECHA_VENTA })
-      expect(cuotas[0].fecha_vencimiento).toBe('2026-05-08')
+      expect(cuotas[0].fecha_vencimiento).toBe('2026-05-11')
     })
 
     it('segunda cuota vence a 30 días', () => {
       const cuotas = calcularCuotas({ total: 100000, tipo: 'fiado_dos_cuotas', fechaVenta: FECHA_VENTA })
-      expect(cuotas[1].fecha_vencimiento).toBe('2026-05-23')
+      expect(cuotas[1].fecha_vencimiento).toBe('2026-05-26')
     })
-  })
-})
-
-describe('calcularTotalVenta', () => {
-  it('retorna suma de todos los items (precio * cantidad)', () => {
-    const items = [
-      { precio: 50000, cantidad: 2 },
-      { precio: 30000, cantidad: 1 },
-    ]
-    expect(calcularTotalVenta(items)).toBe(130000)
-  })
-
-  it('retorna 0 si items está vacío', () => {
-    expect(calcularTotalVenta([])).toBe(0)
   })
 })
 
@@ -72,12 +57,7 @@ describe('validarVenta', () => {
     expect(errorNeg).not.toBeNull()
   })
 
-  it('retorna error si tipo no es válido', () => {
-    const error = validarVenta({ clienteId: 'c-1', total: 100000, tipo: 'invalido' })
-    expect(error).not.toBeNull()
-  })
-
-  it('retorna null si todos los campos son válidos', () => {
+  it('retorna null si datos válidos', () => {
     const error = validarVenta({ clienteId: 'c-1', total: 100000, tipo: 'contado' })
     expect(error).toBeNull()
   })

@@ -1,65 +1,55 @@
 import { supabase } from '@/shared/lib/supabase'
-import type { Venta, CrearVenta } from './ventas.types'
+import type { Venta, CrearVenta, VentaConCliente } from './ventas.types'
 import { calcularCuotas } from './ventas.utils'
 
 export const VentasService = {
+  async obtenerTodos(): Promise<VentaConCliente[]> {
+    const { data, error } = await supabase
+      .from('ventas')
+      .select('*, clientes(id, nombre, telefono)')
+      .order('created_at', { ascending: false })
+
+    if (error) throw new Error(error.message)
+    return data as unknown as VentaConCliente[]
+  },
+
   async crear(datos: CrearVenta): Promise<Venta> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) throw new Error('No autenticado')
 
-    const { data: venta, error: errorVenta } = await supabase
+    const { data: venta, error } = await supabase
       .from('ventas')
       .insert({ ...datos, user_id: user.id })
       .select()
       .single()
 
-    if (errorVenta) throw new Error(errorVenta.message)
-
-    const ventaCreada = venta as Venta
+    if (error) throw new Error(error.message)
 
     if (datos.tipo !== 'contado') {
       const cuotas = calcularCuotas({
         total: datos.total,
         tipo: datos.tipo,
-        fechaVenta: new Date(ventaCreada.created_at),
-      }).map(c => ({
-        ...c,
-        venta_id: ventaCreada.id,
-        user_id: user.id,
-      }))
+        fechaVenta: new Date(),
+      })
 
       const { error: errorCuotas } = await supabase
         .from('cuotas')
-        .insert(cuotas)
+        .insert(
+          cuotas.map(c => ({
+            numero_cuota: c.numero_cuota,
+            valor: c.valor,
+            fecha_vencimiento: c.fecha_vencimiento,
+            estado: c.estado,
+            venta_id: venta.id,
+            user_id: user.id,
+          }))
+        )
 
-      if (errorCuotas) {
-        // Compensating delete — best-effort
-        await supabase.from('ventas').delete().eq('id', ventaCreada.id)
-        throw new Error(`Error creando cuotas: ${errorCuotas.message}`)
-      }
+      if (errorCuotas) throw new Error(errorCuotas.message)
     }
 
-    return ventaCreada
-  },
-
-  async obtenerTodos(): Promise<Venta[]> {
-    const { data, error } = await supabase
-      .from('ventas')
-      .select('*, clientes(nombre)')
-      .order('created_at', { ascending: false })
-
-    if (error) throw new Error(error.message)
-    return (data ?? []) as Venta[]
-  },
-
-  async obtenerPorCliente(clienteId: string): Promise<Venta[]> {
-    const { data, error } = await supabase
-      .from('ventas')
-      .select('*, clientes(nombre)')
-      .eq('cliente_id', clienteId)
-      .order('created_at', { ascending: false })
-
-    if (error) throw new Error(error.message)
-    return (data ?? []) as Venta[]
+    return venta as unknown as Venta
   },
 }

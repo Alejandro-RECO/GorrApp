@@ -1,12 +1,6 @@
 export type TipoVenta = 'contado' | 'fiado_una_cuota' | 'fiado_dos_cuotas'
 export type MedioPago = 'efectivo' | 'digital'
-
-export interface CuotaCalculada {
-  numero_cuota: number
-  valor: number
-  fecha_vencimiento: string
-  estado: 'pendiente'
-}
+export type EstadoCuota = 'pendiente' | 'pagada' | 'vencida'
 
 export interface Venta {
   id: string
@@ -18,7 +12,6 @@ export interface Venta {
   notas: string | null
   created_at: string
   updated_at: string
-  clientes?: { nombre: string }
 }
 
 export type CrearVenta = {
@@ -27,4 +20,19 @@ export type CrearVenta = {
   tipo: TipoVenta
   medio_pago: MedioPago
   notas?: string | null
+}
+
+export interface CuotaCalculada {
+  numero_cuota: number
+  valor: number
+  fecha_vencimiento: string
+  estado: EstadoCuota
+}
+
+export interface VentaConCliente extends Venta {
+  clientes: {
+    id: string
+    nombre: string
+    telefono: string
+  } | null
 }
