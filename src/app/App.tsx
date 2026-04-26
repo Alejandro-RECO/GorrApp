@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAuthStore } from '@/auth'
 import { LoginPage } from '@/auth/components/LoginPage'
+import { Navbar } from '@/shared/components/layout/Navbar'
 import { AppRoutes } from './router'
 
 function App() {
@@ -16,7 +17,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <AppRoutes />
+      <Navbar />
+      <main className="mx-auto max-w-screen-lg">
+        <AppRoutes />
+      </main>
     </div>
   )
 }
