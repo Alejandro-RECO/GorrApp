@@ -13,7 +13,7 @@ import { formatearPesos } from '@/shared/lib/utils'
 import { useClientesStore } from '@/clientes'
 import { useVentasStore, calcularCuotas } from '@/ventas'
 import type { TipoVenta, MedioPago } from '@/ventas'
-import { RUTAS } from '@/app/router'
+import { RUTAS } from '@/app/routes'
 
 type Paso = 1 | 2 | 3
 

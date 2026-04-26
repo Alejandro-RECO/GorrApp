@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuthStore } from '@/auth'
-import { RUTAS } from '@/app/router'
+import { RUTAS } from '@/app/routes'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
