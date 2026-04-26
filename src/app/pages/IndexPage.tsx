@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom'
 import {
   ShoppingBag, Users, Wallet, Bell, Package, BarChart3, Plus,
 } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { RUTAS } from '../routes'
 
 const MODULOS = [
@@ -65,32 +65,34 @@ export function IndexPage() {
         <p className="text-sm text-muted-foreground mt-0.5">¿Qué vas a hacer hoy?</p>
       </div>
 
-      <Button asChild size="lg" className="w-full min-h-14 text-base font-semibold gap-2">
-        <Link to={RUTAS.ventas.nueva}>
-          <Plus className="size-5" />
-          Registrar nueva venta
-        </Link>
-      </Button>
+      {/* CTA principal — Link styled as Button (base-ui no soporta asChild) */}
+      <Link
+        to={RUTAS.ventas.nueva}
+        className={cn(
+          buttonVariants({ size: 'lg' }),
+          'w-full min-h-14 text-base font-semibold gap-2'
+        )}
+      >
+        <Plus className="size-5" />
+        Registrar nueva venta
+      </Link>
 
+      {/* Grid módulos — Link styled as Card (base-ui Card no soporta asChild) */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {MODULOS.map(({ to, label, descripcion, Icon, color, iconColor }) => (
-          <Card
+          <Link
             key={to}
-            asChild
-            className="p-4 cursor-pointer hover:bg-accent transition-colors active:scale-[0.98]"
+            to={to}
+            className="flex flex-col gap-2 rounded-xl bg-card p-4 text-sm text-card-foreground ring-1 ring-foreground/10 cursor-pointer hover:bg-accent transition-colors active:scale-[0.98]"
           >
-            <Link to={to}>
-              <div className="flex flex-col gap-2">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${color}`}>
-                  <Icon className={`size-5 ${iconColor}`} />
-                </div>
-                <div>
-                  <p className="font-semibold text-sm">{label}</p>
-                  <p className="text-xs text-muted-foreground">{descripcion}</p>
-                </div>
-              </div>
-            </Link>
-          </Card>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${color}`}>
+              <Icon className={`size-5 ${iconColor}`} />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">{label}</p>
+              <p className="text-xs text-muted-foreground">{descripcion}</p>
+            </div>
+          </Link>
         ))}
       </div>
     </div>
