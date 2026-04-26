@@ -1,6 +1,7 @@
 import { Routes, Route, useParams } from 'react-router-dom'
 import { ListaClientes, DetalleCliente } from '@/clientes'
 import { ListaVentas, FormVenta } from '@/ventas'
+import { ListaCobros } from '@/cobros'
 import { IndexPage } from './pages/IndexPage'
 import { RUTAS } from './routes'
 
@@ -29,7 +30,7 @@ export function AppRoutes() {
       <Route path={RUTAS.clientes.lista} element={<ListaClientes />} />
       <Route path={`${RUTAS.clientes.lista}/:id`} element={<ClienteConHistorial />} />
       <Route path={RUTAS.caja.resumen} element={<PlaceholderPage titulo="Caja" />} />
-      <Route path={RUTAS.cobros.lista} element={<PlaceholderPage titulo="Cobros" />} />
+      <Route path={RUTAS.cobros.lista} element={<ListaCobros />} />
       <Route path={RUTAS.inventario.lista} element={<PlaceholderPage titulo="Inventario" />} />
       <Route path={RUTAS.reportes.inicio} element={<PlaceholderPage titulo="Reportes" />} />
     </Routes>
