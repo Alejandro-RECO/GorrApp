@@ -35,6 +35,7 @@ export const CobrosService = {
       .single()
 
     if (errorCuota) throw new Error(errorCuota.message)
+    if (!cuotaActual) throw new Error('Cuota no encontrada')
 
     const saldo = calcularSaldoPendiente(cuotaActual, cuotaActual.abonos || [])
     

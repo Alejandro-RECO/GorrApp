@@ -48,7 +48,7 @@ export const useCobrosStore = create<CobrosState>((set, get) => ({
         abonos: { ...state.abonos, [cuotaId]: datos }
       }))
     } catch (e) {
-      // Silencioso - no bloquea la UI
+      set({ error: 'No se pudieron cargar los abonos' })
     }
   },
 }))

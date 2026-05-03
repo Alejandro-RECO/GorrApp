@@ -15,7 +15,7 @@ function getBadgeVariant(estado: string, estaVencida: boolean): 'default' | 'des
   return 'default'
 }
 
-functionEstadoBadge({ estado, vencida }: { estado: string; vencida: boolean }) {
+function EstadoBadge({ estado, vencida }: { estado: string; vencida: boolean }) {
   const variant = getBadgeVariant(estado, vencida)
   const label = estado === 'pagada' ? 'Pagada' : vencida ? 'Vencida' : 'Pendiente'
   return <Badge variant={variant}>{label}</Badge>
@@ -72,7 +72,7 @@ export function ListaCobros() {
                     <div className="flex flex-col gap-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium truncate">{cliente?.nombre || 'Sin cliente'}</span>
-                        <functionEstadoBadge estado={cuota.estado} vencida={estaVencida} />
+                        <EstadoBadge estado={cuota.estado} vencida={estaVencida} />
                       </div>
                       <span className="text-sm text-muted-foreground">
                         Cuota {cuota.numero_cuota} · {formatearPesos(cuota.valor)}

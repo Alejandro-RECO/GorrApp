@@ -1,4 +1,5 @@
 import type { Cuota, Abono } from './cobros.types'
+import { formatearPesos } from '@/shared/lib/utils'
 
 export function calcularSaldoPendiente(cuota: { valor: number }, abonos: Abono[]): number {
   const sumaAbonos = abonos.reduce((sum, a) => sum + a.valor, 0)
@@ -20,5 +21,5 @@ export function generarMensajeCobro(
   cuotas: Cuota[]
 ): string {
   const total = cuotas.reduce((sum, c) => sum + c.valor, 0)
-  return `Hola ${cliente.nombre}, tienes ${cuotas.length} cuota(s) pendiente(s) por un total de ${total}.`
+  return `Hola ${cliente.nombre}, tienes ${cuotas.length} cuota(s) pendiente(s) por un total de ${formatearPesos(total)}.`
 }

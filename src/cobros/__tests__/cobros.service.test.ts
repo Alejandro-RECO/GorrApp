@@ -48,7 +48,9 @@ describe('CobrosService', () => {
   describe('registrarAbono', () => {
     it('inserta el abono en la tabla abonos', async () => {
       mockQueryBuilder.select.mockReturnValue(mockQueryBuilder)
-      mockQueryBuilder.single.mockResolvedValueOnce({ data: mockAbono, error: null })
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockAbono, error: null })
+        .mockResolvedValueOnce({ data: { ...mockCuota, abonos: [mockAbono] }, error: null })
 
       await CobrosService.registrarAbono({
         cuotaId: 'c1',
