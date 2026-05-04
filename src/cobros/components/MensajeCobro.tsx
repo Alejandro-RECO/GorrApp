@@ -85,7 +85,6 @@ export function MensajeCobro({ cuota, onClose }: Props) {
           </div>
         </div>
 
-        <DialogDescription></DialogDescription>
       </DialogContent>
     </Dialog>
   )

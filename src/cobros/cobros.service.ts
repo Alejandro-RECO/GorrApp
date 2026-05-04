@@ -40,10 +40,11 @@ export const CobrosService = {
     const saldo = calcularSaldoPendiente(cuotaActual, cuotaActual.abonos || [])
     
     if (saldo <= 0) {
-      await supabase
+      const { error: errorUpdate } = await supabase
         .from('cuotas')
         .update({ estado: 'pagada' })
         .eq('id', params.cuotaId)
+      if (errorUpdate) throw new Error(errorUpdate.message)
     }
 
     return abonoInsertado
