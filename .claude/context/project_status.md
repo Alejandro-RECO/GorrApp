@@ -4,13 +4,20 @@
 ---
 
 ## Estado actual
-- **Fase**: HU-03 CERRADA — refactor completo módulo ventas
+- **Fase**: HU-04 EN REVISIÓN — módulo cobros completo, BLOCKERs resueltos
 - **Sprint activo**: 1 (desarrollo de módulos)
-- **Rama activa**: master
+- **Rama activa**: feature/HU-04-modulo-cobros
 
 ---
 
 ## Hitos completados
+- ✅ HU-04: módulo cobros (89 tests, 80.88% cobertura components)
+  - cobros.utils: calcularSaldoPendiente, cuotaEstaVencida, generarMensajeCobro (COP fmt)
+  - cobros.service: obtenerCuotasPendientes, registrarAbono (auto-marca pagada)
+  - cobros.store: Zustand — cargarCuotasPendientes, registrarAbono, cargarAbonos
+  - ListaCobros: sort vencidas primero + Badge estado + botones Abonar/WhatsApp
+  - FormAbono: Dialog con saldo pendiente + validación + medio de pago
+  - MensajeCobro: Dialog con enlace wa.me + copia portapapeles
 - ✅ Sistema de agentes (6 agentes, 3 skills)
 - ✅ Stack base: Vite + React 18 + TS + Bun + shadcn/ui + Tailwind v4
 - ✅ Screaming Architecture: 7 módulos de negocio
@@ -76,27 +83,24 @@ src/shared/components/layout/
 
 ---
 
-## Siguiente sesión — HU-04: módulo cobros
-Tarea: Gestionar cuotas pendientes y registrar abonos.
-Entidades: Cuota (leer desde ventas), Abono (crear)
-Secuencia TDD:
-1. Testing → cobros.utils.test.ts + cobros.service.test.ts en rojo
-2. Backend → cobros.service.ts (obtenerCuotasPendientes, registrarAbono)
-3. Frontend → ListaCobros.tsx + FormAbono.tsx
-4. Conectar: DetalleCliente actualiza cuotas al abonar
+## Siguiente sesión — merge HU-04 + iniciar HU-05: módulo caja
+- Merge feature/HU-04-modulo-cobros → master (segunda revisión Reviewer)
+- HU-05: Caja — movimientos_caja, saldo efectivo vs digital
 
 ---
 
 ## Deuda técnica registrada
 - [ ] Test: `obtenerSesionActiva()` lanza error si getSession falla (auth.service línea 20)
 - [ ] Test: callback `onAuthStateChange` en auth.store (línea 34)
-- [ ] DEC-06: Mover `src/components/ui/` a `src/shared/components/ui/` (ejecutar en HU-04)
+- [ ] DEC-06: Mover `src/components/ui/` a `src/shared/components/ui/` (ejecutar en HU-05)
 - [ ] Test: DetalleCliente sin tests propios
 - [ ] Test: ListaClientes.tsx onGuardar closures (líneas 48-61)
-- [ ] Test: ventas.store.ts sin tests (store eliminado en refactor HU-03, no reescrito)
-- [ ] Fix: VentasService.crear() sin compensating delete si falla insert cuotas (SUGGESTION-02 reviewer HU-03)
-- [ ] Fix: router.tsx re-exporta RUTAS (ESLint fast-refresh warning) — eliminar re-export (SUGGESTION-01)
-- [ ] Fix: timezone edge case en agregarDias + new Date() para ventas > 19:00 Colombia (SUGGESTION-04)
+- [ ] Test: ventas.store.ts sin tests
+- [ ] Fix: VentasService.crear() sin compensating delete si falla insert cuotas
+- [ ] Fix: router.tsx re-exporta RUTAS (ESLint fast-refresh warning)
+- [ ] Fix: timezone edge case en agregarDias para ventas > 19:00 Colombia
+- [ ] Test: cobros.service branch coverage 55% — faltan ramas de error (líneas 13-14, 29-60)
+- [ ] Test: cobros Dialog callbacks (handleOpenChange) — functions coverage 72%
 - [ ] Configurar GitHub Actions (lint + test en cada PR)
 - [ ] Configurar Google OAuth en Supabase Dashboard
 
