@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ShoppingBag, Users, Wallet, Bell, Package, BarChart3, Plus,
@@ -5,6 +6,8 @@ import {
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { RUTAS } from '../routes'
+import { useCajaStore } from '@/caja'
+import { formatearPesos } from '@/shared/lib/utils'
 
 const MODULOS = [
   {
@@ -58,6 +61,12 @@ const MODULOS = [
 ] as const
 
 export function IndexPage() {
+  const { resumen, cargarMovimientosDia } = useCajaStore()
+
+  useEffect(() => {
+    cargarMovimientosDia()
+  }, [cargarMovimientosDia])
+
   return (
     <div className="flex flex-col gap-6 p-4">
       <div className="pt-2">
@@ -90,7 +99,11 @@ export function IndexPage() {
             </div>
             <div>
               <p className="font-semibold text-sm">{label}</p>
-              <p className="text-xs text-muted-foreground">{descripcion}</p>
+              <p className="text-xs text-muted-foreground">
+              {to === RUTAS.caja.resumen
+                ? formatearPesos(resumen.total)
+                : descripcion}
+            </p>
             </div>
           </Link>
         ))}

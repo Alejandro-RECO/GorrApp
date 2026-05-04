@@ -13,9 +13,11 @@
 | medio_pago   | TEXT        | 'efectivo' \| 'digital'                                                                            |
 | descripcion  | TEXT        | NOT NULL — texto libre del operador                                                                |
 | referencia_id| UUID        | nullable — id de venta o abono (soft reference, sin FK)                                            |
+| fecha        | DATE        | NOT NULL — fecha del movimiento (filtro principal de ListaMovimientos)                             |
 | created_at   | TIMESTAMPTZ | DEFAULT NOW() NOT NULL                                                                             |
 
 *Movimientos son inmutables — sin updated_at. Nunca se editan.*
+*⚠️ Migración pendiente: ADD COLUMN fecha DATE NOT NULL DEFAULT CURRENT_DATE en movimientos_caja*
 
 ## Lógica de saldos
 El saldo de caja NO vive en la DB. Se calcula en el service:

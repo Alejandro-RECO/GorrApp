@@ -20,6 +20,8 @@ export const mockQueryBuilder: Record<string, ReturnType<typeof vi.fn>> & {
   update: vi.fn(),
   delete: vi.fn(),
   eq: vi.fn(),
+  gte: vi.fn(),
+  lte: vi.fn(),
   order: vi.fn(),
   single: vi.fn(),
   then: (resolve, reject) =>
@@ -31,6 +33,8 @@ mockQueryBuilder.insert.mockReturnValue(mockQueryBuilder)
 mockQueryBuilder.update.mockReturnValue(mockQueryBuilder)
 mockQueryBuilder.delete.mockReturnValue(mockQueryBuilder)
 mockQueryBuilder.eq.mockReturnValue(mockQueryBuilder)
+mockQueryBuilder.gte.mockReturnValue(mockQueryBuilder)
+mockQueryBuilder.lte.mockResolvedValue({ data: [], error: null })
 mockQueryBuilder.order.mockResolvedValue({ data: [], error: null })
 mockQueryBuilder.single.mockResolvedValue({ data: null, error: null })
 
