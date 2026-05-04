@@ -4,9 +4,9 @@
 ---
 
 ## Estado actual
-- **Fase**: HU-04 EN REVISIÓN — módulo cobros completo, BLOCKERs resueltos
+- **Fase**: HU-04 MERGEADO a master — listo para HU-05 módulo caja
 - **Sprint activo**: 1 (desarrollo de módulos)
-- **Rama activa**: feature/HU-04-modulo-cobros
+- **Rama activa**: master
 
 ---
 
@@ -83,8 +83,7 @@ src/shared/components/layout/
 
 ---
 
-## Siguiente sesión — merge HU-04 + iniciar HU-05: módulo caja
-- Merge feature/HU-04-modulo-cobros → master (segunda revisión Reviewer)
+## Siguiente sesión — HU-05: módulo caja
 - HU-05: Caja — movimientos_caja, saldo efectivo vs digital
 
 ---
@@ -106,4 +105,4 @@ src/shared/components/layout/
 
 ---
 
-*Última actualización: 2026-04-26 — cierre HU-03 refactor ventas*
+*Última actualización: 2026-05-03 — merge HU-04 a master (fix BLOCKER-01: error handling en registrarAbono update)*
