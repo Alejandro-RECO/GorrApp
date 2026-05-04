@@ -2,3 +2,8 @@ export type { TipoMovimiento, MedioPago, MovimientoCaja, CrearMovimiento, Resume
 export { useCajaStore } from './caja.store'
 export { calcularSaldoDia, calcularSaldoPorMedio, esIngreso, agruparPorTipo } from './caja.utils'
 export { CajaService } from './caja.service'
+export { CajaPage } from './components/CajaPage'
+export { ResumenCajaDia } from './components/ResumenCaja'
+export { ListaMovimientos } from './components/ListaMovimientos'
+export { FormMovimiento } from './components/FormMovimiento'
+export { SelectorFecha } from './components/SelectorFecha'
