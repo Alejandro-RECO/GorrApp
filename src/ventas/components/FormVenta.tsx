@@ -35,7 +35,7 @@ export function FormVenta() {
   }, [clientes.length, cargarClientes])
 
   const clienteSeleccionado = clientes.find(c => c.id === clienteId)
-  const totalCentavos = Math.round(parseFloat(totalPesos || '0') * 100)
+  const totalCentavos = Math.round(parseFloat(totalPesos || '0'))
   const cuotasPreview = calcularCuotas({
     total: totalCentavos,
     tipo,
@@ -154,7 +154,9 @@ export function FormVenta() {
             <Label htmlFor="tipo">Tipo de venta</Label>
             <Select
               value={tipo}
-              onValueChange={(v: string) => setTipo(v as TipoVenta)}
+              onValueChange={(value: string | null) =>
+                value && setTipo(value as TipoVenta)
+              }
             >
               <SelectTrigger id="tipo" className="min-h-11 w-full">
                 <SelectValue />
@@ -171,7 +173,7 @@ export function FormVenta() {
             <Label htmlFor="medio">Medio de pago</Label>
             <Select
               value={medioPago}
-              onValueChange={(v: string) => setMedioPago(v as MedioPago)}
+              onValueChange={(v) => v && setMedioPago(v as MedioPago)}
             >
               <SelectTrigger id="medio" className="min-h-11 w-full">
                 <SelectValue />
@@ -221,7 +223,7 @@ export function FormVenta() {
                   <div key={c.numero_cuota} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Cuota {c.numero_cuota}</span>
                     <div className="text-right">
-                      <span className="font-medium">{formatearPesos(c.valor)}</span>
+                      <span className="font-medium">{(formatearPesos(c.valor))}</span>
                       <span className="text-xs text-muted-foreground ml-2">
                         vence {c.fecha_vencimiento}
                       </span>

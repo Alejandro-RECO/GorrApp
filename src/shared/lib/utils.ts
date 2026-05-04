@@ -7,5 +7,5 @@ export function formatearPesos(centavos: number): string {
     currency: "COP",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(centavos / 100)
+  }).format(centavos)
 }

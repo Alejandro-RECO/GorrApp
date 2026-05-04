@@ -46,7 +46,7 @@ export function FormMovimiento({ open, onClose }: Props) {
     if (invalido) return
     await registrarMovimiento({
       tipo,
-      valor: valorNum * 100,
+      valor: valorNum,
       medioPago: medio,
       fecha: fechaActiva,
       descripcion: descripcion.trim(),

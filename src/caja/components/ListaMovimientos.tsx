@@ -91,7 +91,7 @@ export function ListaMovimientos() {
                     <TableCell className="text-xs font-medium">
                       {TIPO_ETIQUETAS[m.tipo] ?? m.tipo}
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell text-xs text-muted-foreground max-w-[180px] truncate">
+                    <TableCell className="hidden sm:table-cell text-xs text-muted-foreground max-w-45 truncate">
                       {m.descripcion}
                     </TableCell>
                     <TableCell className="text-xs capitalize text-muted-foreground">
