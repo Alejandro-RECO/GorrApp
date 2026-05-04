@@ -1,13 +1,31 @@
-import type { Movimiento, MedioPago, TipoMovimiento } from './caja.types'
+import type { MovimientoCaja, MedioPago, TipoMovimiento } from './caja.types'
 
-export function calcularSaldoDia(_movimientos: Movimiento[]): number {
-  throw new Error('not implemented')
+const TIPOS_INGRESO: TipoMovimiento[] = ['ingreso_venta', 'ingreso_abono']
+
+export function esIngreso(tipo: TipoMovimiento | string): boolean {
+  return TIPOS_INGRESO.includes(tipo as TipoMovimiento)
 }
 
-export function calcularSaldoPorMedio(_movimientos: Movimiento[], _medio: MedioPago): number {
-  throw new Error('not implemented')
+export function calcularSaldoDia(movimientos: MovimientoCaja[]): number {
+  return movimientos.reduce((sum, m) => {
+    return esIngreso(m.tipo) ? sum + m.valor : sum - m.valor
+  }, 0)
 }
 
-export function esIngreso(_tipo: TipoMovimiento | string): boolean {
-  throw new Error('not implemented')
+export function calcularSaldoPorMedio(movimientos: MovimientoCaja[], medio: MedioPago): number {
+  return calcularSaldoDia(movimientos.filter(m => m.medio_pago === medio))
+}
+
+export function agruparPorTipo(movimientos: MovimientoCaja[]): Record<TipoMovimiento, number> {
+  const base: Record<TipoMovimiento, number> = {
+    ingreso_venta: 0,
+    ingreso_abono: 0,
+    gasto_operativo: 0,
+    gasto_inversion: 0,
+    compra_mercancia: 0,
+  }
+  return movimientos.reduce((acc, m) => {
+    acc[m.tipo] += m.valor
+    return acc
+  }, base)
 }

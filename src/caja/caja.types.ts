@@ -7,7 +7,7 @@ export type TipoMovimiento =
 
 export type MedioPago = 'efectivo' | 'digital'
 
-export interface Movimiento {
+export interface MovimientoCaja {
   id: string
   user_id: string
   tipo: TipoMovimiento
@@ -24,4 +24,10 @@ export type CrearMovimiento = {
   medioPago: MedioPago
   fecha: string
   descripcion?: string
+}
+
+export interface ResumenCaja {
+  efectivo: number
+  digital: number
+  total: number
 }
