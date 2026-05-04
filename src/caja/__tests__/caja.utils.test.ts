@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcularSaldoDia, calcularSaldoPorMedio, esIngreso } from '../caja.utils'
+import { calcularSaldoDia, calcularSaldoPorMedio, esIngreso, agruparPorTipo } from '../caja.utils'
 
 const movimientos = [
   { id: 'm1', user_id: 'u1', tipo: 'ingreso_venta' as const,    valor: 50000, medio_pago: 'efectivo' as const, fecha: '2026-05-03', descripcion: null, created_at: '2026-05-03T10:00:00Z' },
@@ -30,6 +30,26 @@ describe('calcularSaldoPorMedio', () => {
   it('retorna saldo solo para medio digital', () => {
     // ingreso_abono 20 000 digital − compra_mercancia 30 000 digital = −10 000
     expect(calcularSaldoPorMedio(movimientos, 'digital')).toBe(-10000)
+  })
+})
+
+describe('agruparPorTipo', () => {
+  it('suma valores por tipo correctamente', () => {
+    const resultado = agruparPorTipo(movimientos)
+    expect(resultado.ingreso_venta).toBe(50000)
+    expect(resultado.ingreso_abono).toBe(20000)
+    expect(resultado.gasto_operativo).toBe(10000)
+    expect(resultado.compra_mercancia).toBe(30000)
+    expect(resultado.gasto_inversion).toBe(0)
+  })
+
+  it('retorna ceros para todos los tipos cuando no hay movimientos', () => {
+    const resultado = agruparPorTipo([])
+    expect(resultado.ingreso_venta).toBe(0)
+    expect(resultado.ingreso_abono).toBe(0)
+    expect(resultado.gasto_operativo).toBe(0)
+    expect(resultado.gasto_inversion).toBe(0)
+    expect(resultado.compra_mercancia).toBe(0)
   })
 })
 

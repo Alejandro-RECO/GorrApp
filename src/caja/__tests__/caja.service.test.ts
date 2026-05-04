@@ -46,6 +46,12 @@ describe('CajaService', () => {
 
       expect(resultado).toHaveLength(0)
     })
+
+    it('lanza error si Supabase retorna error', async () => {
+      mockQueryBuilder.order.mockResolvedValueOnce({ data: null, error: { message: 'DB error' } })
+
+      await expect(CajaService.obtenerMovimientosDia('2026-05-03')).rejects.toThrow('DB error')
+    })
   })
 
   describe('registrarMovimiento', () => {
