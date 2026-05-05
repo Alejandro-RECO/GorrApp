@@ -3,6 +3,7 @@ import { ListaClientes, DetalleCliente } from '@/clientes'
 import { ListaVentas, FormVenta } from '@/ventas'
 import { ListaCobros } from '@/cobros'
 import { CajaPage } from '@/caja'
+import { ListaProductos } from '@/inventario'
 import { IndexPage } from './pages/IndexPage'
 import { RUTAS } from './routes'
 
@@ -32,7 +33,7 @@ export function AppRoutes() {
       <Route path={`${RUTAS.clientes.lista}/:id`} element={<ClienteConHistorial />} />
       <Route path={RUTAS.caja.resumen} element={<CajaPage />} />
       <Route path={RUTAS.cobros.lista} element={<ListaCobros />} />
-      <Route path={RUTAS.inventario.lista} element={<PlaceholderPage titulo="Inventario" />} />
+      <Route path={RUTAS.inventario.lista} element={<ListaProductos />} />
       <Route path={RUTAS.reportes.inicio} element={<PlaceholderPage titulo="Reportes" />} />
     </Routes>
   )
