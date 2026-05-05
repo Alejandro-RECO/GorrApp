@@ -58,42 +58,49 @@ export const InventarioService = {
       .single()
 
     if (compraError) throw new Error(compraError.message)
+    const compraId = (compra as CompraInventario).id
 
-    // 2. Leer stock actual y actualizar en productos
-    const { data: productoActual, error: leerError } = await supabase
-      .from('productos')
-      .select('stock_actual')
-      .eq('id', datos.producto_id)
-      .single()
+    try {
+      // 2. Leer stock actual y actualizar en productos
+      const { data: productoActual, error: leerError } = await supabase
+        .from('productos')
+        .select('stock_actual')
+        .eq('id', datos.producto_id)
+        .single()
 
-    if (leerError) throw new Error(leerError.message)
+      if (leerError) throw new Error(leerError.message)
 
-    const nuevoStock = ((productoActual as Producto | null)?.stock_actual ?? 0) + datos.cantidad
+      const nuevoStock = ((productoActual as Producto | null)?.stock_actual ?? 0) + datos.cantidad
 
-    const { error: updateError } = await supabase
-      .from('productos')
-      .update({ stock_actual: nuevoStock })
-      .eq('id', datos.producto_id)
-      .select()
-      .single()
+      const { error: updateError } = await supabase
+        .from('productos')
+        .update({ stock_actual: nuevoStock })
+        .eq('id', datos.producto_id)
+        .select()
+        .single()
 
-    if (updateError) throw new Error(updateError.message)
+      if (updateError) throw new Error(updateError.message)
 
-    // 3. Registrar movimiento en caja tipo compra_mercancia
-    const { error: movError } = await supabase
-      .from('movimientos_caja')
-      .insert({
-        user_id: user.id,
-        tipo: 'compra_mercancia',
-        valor: datos.cantidad * datos.precio_unitario,
-        medio_pago: datos.medio_pago,
-        fecha: datos.fecha,
-        descripcion: `Compra mercancía: ${datos.cantidad} unidades`,
-      })
-      .select()
-      .single()
+      // 3. Registrar movimiento en caja tipo compra_mercancia
+      const { error: movError } = await supabase
+        .from('movimientos_caja')
+        .insert({
+          user_id: user.id,
+          tipo: 'compra_mercancia',
+          valor: datos.cantidad * datos.precio_unitario,
+          medio_pago: datos.medio_pago,
+          fecha: datos.fecha,
+          descripcion: `Compra mercancía: ${datos.cantidad} unidades`,
+        })
+        .select()
+        .single()
 
-    if (movError) throw new Error(movError.message)
+      if (movError) throw new Error(movError.message)
+    } catch (err) {
+      // Rollback manual: eliminar compra si pasos 2-3 fallan
+      await supabase.from('compras_inventario').delete().eq('id', compraId)
+      throw err
+    }
 
     return compra as CompraInventario
   },
