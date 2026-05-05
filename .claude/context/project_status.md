@@ -4,13 +4,25 @@
 ---
 
 ## Estado actual
-- **Fase**: HU-04 MERGEADO a master — listo para HU-05 módulo caja
+- **Fase**: HU-06 MERGEADO a master — listo para HU-07
 - **Sprint activo**: 1 (desarrollo de módulos)
 - **Rama activa**: master
 
 ---
 
 ## Hitos completados
+- ✅ HU-06: módulo inventario completo (12 tests, TDD RED→GREEN→REFACTOR)
+  - inventario.types: Producto, CompraInventario, CrearProducto, RegistrarCompra, ActualizarProducto
+  - inventario.utils: stockBajo (<=), calcularValorInventario
+  - inventario.service: obtenerTodos, crearProducto, actualizarProducto, registrarCompra (3 pasos + rollback manual)
+  - inventario.store: Zustand — cargarProductos, agregarProducto, actualizarProducto, registrarCompra, productosConStockBajo
+  - ListaProductos: Table + Badge "Stock bajo" (destructive) + botón "Registrar compra" por fila + Skeleton
+  - FormProducto: Dialog crear/editar con validación (nombre, precio>0, stock_min>=0)
+  - FormCompra: Dialog 2 pasos (formulario → confirmación) + resumen total
+  - IndexPage: card inventario muestra "X con stock bajo" / "Stock al día"
+  - Router: /inventario → ListaProductos (reemplaza PlaceholderPage)
+  - BLOCKER resuelto en review: rollback manual en registrarCompra si pasos 2-3 fallan
+- ✅ HU-05: módulo caja (merge 2026-05-03)
 - ✅ HU-04: módulo cobros (89 tests, 80.88% cobertura components)
   - cobros.utils: calcularSaldoPendiente, cuotaEstaVencida, generarMensajeCobro (COP fmt)
   - cobros.service: obtenerCuotasPendientes, registrarAbono (auto-marca pagada)
@@ -83,12 +95,15 @@ src/shared/components/layout/
 
 ---
 
-## Siguiente sesión — HU-05: módulo caja
-- HU-05: Caja — movimientos_caja, saldo efectivo vs digital
+## Siguiente sesión — HU-07
+- Pendiente definir: probablemente módulo reportes o mejoras a inventario/caja
 
 ---
 
 ## Deuda técnica registrada
+- [ ] Fix: centavos vs pesos — inconsistencia sistémica. Toda la codebase usa pesos directamente pero docs dicen centavos. Síntomas: cobros.utils.test.ts:130 + ListaClientes.test.tsx:153 (2 tests pre-existentes fallando). Corregir unificando convención antes de producción.
+- [ ] Test: crearProducto() en inventario.service sin cobertura
+- [ ] Refactor: inventario.service escribe en movimientos_caja directamente (cross-module write). Evaluar mover a CajaService.registrarMovimiento() cuando se agregue validación en caja.
 - [ ] Test: `obtenerSesionActiva()` lanza error si getSession falla (auth.service línea 20)
 - [ ] Test: callback `onAuthStateChange` en auth.store (línea 34)
 - [ ] DEC-06: Mover `src/components/ui/` a `src/shared/components/ui/` (ejecutar en HU-05)
@@ -105,4 +120,4 @@ src/shared/components/layout/
 
 ---
 
-*Última actualización: 2026-05-03 — merge HU-04 a master (fix BLOCKER-01: error handling en registrarAbono update)*
+*Última actualización: 2026-05-05 — merge HU-06 a master (BLOCKER-01 resuelto en review: rollback manual en registrarCompra)*
