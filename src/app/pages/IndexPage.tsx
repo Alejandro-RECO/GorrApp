@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { RUTAS } from '../routes'
 import { useCajaStore } from '@/caja'
 import { useInventarioStore } from '@/inventario'
+import { useReportesStore } from '@/reportes'
 import { formatearPesos } from '@/shared/lib/utils'
 
 const MODULOS = [
@@ -64,12 +65,14 @@ const MODULOS = [
 export function IndexPage() {
   const { resumen, cargarMovimientosDia } = useCajaStore()
   const { cargarProductos, productosConStockBajo } = useInventarioStore()
+  const { resumen: resumenReportes, cargarResumen } = useReportesStore()
   const cantidadBajoStock = productosConStockBajo().length
 
   useEffect(() => {
     cargarMovimientosDia()
     cargarProductos()
-  }, [cargarMovimientosDia, cargarProductos])
+    cargarResumen()
+  }, [cargarMovimientosDia, cargarProductos, cargarResumen])
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -110,6 +113,8 @@ export function IndexPage() {
                 ? cantidadBajoStock > 0
                   ? `${cantidadBajoStock} con stock bajo`
                   : 'Stock al día'
+                : to === RUTAS.reportes.inicio && resumenReportes
+                ? formatearPesos(resumenReportes.totalVendido)
                 : descripcion}
             </p>
             </div>
