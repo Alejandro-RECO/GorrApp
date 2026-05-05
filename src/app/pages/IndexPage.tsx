@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { RUTAS } from '../routes'
 import { useCajaStore } from '@/caja'
+import { useInventarioStore } from '@/inventario'
 import { formatearPesos } from '@/shared/lib/utils'
 
 const MODULOS = [
@@ -62,10 +63,13 @@ const MODULOS = [
 
 export function IndexPage() {
   const { resumen, cargarMovimientosDia } = useCajaStore()
+  const { cargarProductos, productosConStockBajo } = useInventarioStore()
+  const cantidadBajoStock = productosConStockBajo().length
 
   useEffect(() => {
     cargarMovimientosDia()
-  }, [cargarMovimientosDia])
+    cargarProductos()
+  }, [cargarMovimientosDia, cargarProductos])
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -102,6 +106,10 @@ export function IndexPage() {
               <p className="text-xs text-muted-foreground">
               {to === RUTAS.caja.resumen
                 ? formatearPesos(resumen.total)
+                : to === RUTAS.inventario.lista
+                ? cantidadBajoStock > 0
+                  ? `${cantidadBajoStock} con stock bajo`
+                  : 'Stock al día'
                 : descripcion}
             </p>
             </div>

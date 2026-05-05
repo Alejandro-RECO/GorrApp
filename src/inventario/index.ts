@@ -2,3 +2,6 @@ export type { Producto, CompraInventario, CrearProducto, RegistrarCompra, Actual
 export { useInventarioStore } from './inventario.store'
 export { stockBajo, calcularValorInventario } from './inventario.utils'
 export { InventarioService } from './inventario.service'
+export { ListaProductos } from './components/ListaProductos'
+export { FormProducto } from './components/FormProducto'
+export { FormCompra } from './components/FormCompra'
