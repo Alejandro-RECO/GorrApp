@@ -3,8 +3,10 @@ import { AuthService } from './auth.service'
 import { supabase } from '@/shared/lib/supabase'
 import type { AuthState } from './auth.types'
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
+  profile: null,
+  negocio: null,
   cargando: false,
 
   loginConGoogle: async () => {
@@ -20,18 +22,31 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ cargando: true })
     try {
       await AuthService.cerrarSesion()
-      set({ session: null })
+      set({ session: null, profile: null, negocio: null })
     } finally {
       set({ cargando: false })
     }
   },
 
+  cargarPerfil: async () => {
+    const { profile, negocio } = await AuthService.cargarPerfil()
+    set({ profile, negocio })
+  },
+
   inicializarSesion: async () => {
     const sesion = await AuthService.obtenerSesionActiva()
     set({ session: sesion })
+    if (sesion) {
+      await get().cargarPerfil()
+    }
 
-    supabase.auth.onAuthStateChange((_event, sesion) => {
+    supabase.auth.onAuthStateChange(async (_event, sesion) => {
       set({ session: sesion })
+      if (sesion) {
+        await get().cargarPerfil()
+      } else {
+        set({ profile: null, negocio: null })
+      }
     })
   },
 }))

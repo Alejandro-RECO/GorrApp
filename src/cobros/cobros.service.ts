@@ -1,4 +1,5 @@
 import { supabase } from '@/shared/lib/supabase'
+import { getAuthContext } from '@/shared/lib/getNegocioId'
 import type { Cuota, CuotaConCliente, Abono, CrearAbono } from './cobros.types'
 import { calcularSaldoPendiente } from './cobros.utils'
 
@@ -15,8 +16,7 @@ export const CobrosService = {
   },
 
   async registrarAbono(params: CrearAbono): Promise<Abono> {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No autenticado')
+    const { userId, negocioId } = getAuthContext()
 
     // 1. Insert abono
     const { data: abonoInsertado, error: errorInsert } = await supabase
@@ -26,7 +26,8 @@ export const CobrosService = {
         valor: params.valor,
         medio_pago: params.medioPago,
         notas: params.notas || null,
-        user_id: user.id,
+        user_id: userId,
+        negocio_id: negocioId,
       })
       .select()
       .single()
@@ -60,7 +61,8 @@ export const CobrosService = {
       const { error: errorCaja } = await supabase
         .from('movimientos_caja')
         .insert({
-          user_id: user.id,
+          user_id: userId,
+          negocio_id: negocioId,
           tipo: 'ingreso_abono',
           valor: params.valor,
           medio_pago: params.medioPago,

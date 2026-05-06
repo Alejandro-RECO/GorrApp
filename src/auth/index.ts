@@ -1,2 +1,3 @@
-export type { Session, AuthState } from './auth.types'
+export type { Session, AuthState, Profile, Negocio } from './auth.types'
 export { useAuthStore } from './auth.store'
+export { AuthService } from './auth.service'

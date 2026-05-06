@@ -1,4 +1,5 @@
 import { supabase } from '@/shared/lib/supabase'
+import { getAuthContext } from '@/shared/lib/getNegocioId'
 import type { MovimientoCaja, CrearMovimiento } from './caja.types'
 
 export const CajaService = {
@@ -14,8 +15,7 @@ export const CajaService = {
   },
 
   async registrarMovimiento(datos: CrearMovimiento): Promise<MovimientoCaja> {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No autenticado')
+    const { userId, negocioId } = getAuthContext()
 
     const { data, error } = await supabase
       .from('movimientos_caja')
@@ -25,7 +25,8 @@ export const CajaService = {
         medio_pago: datos.medioPago,
         fecha: datos.fecha,
         descripcion: datos.descripcion ?? '',
-        user_id: user.id,
+        user_id: userId,
+        negocio_id: negocioId,
       })
       .select()
       .single()

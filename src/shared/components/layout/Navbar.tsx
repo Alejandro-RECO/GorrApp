@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   Menu, LogOut, Home, ShoppingBag, Users,
-  Wallet, Bell, Package, BarChart3,
+  Wallet, Bell, Package, BarChart3, Settings,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,6 +21,7 @@ import {
 import { useAuthStore } from '@/auth'
 import { RUTAS } from '@/app/routes'
 import { cn } from '@/lib/utils'
+import { Link } from 'react-router-dom'
 
 const NAV_LINKS = [
   { to: RUTAS.inicio,           label: 'Inicio',      Icon: Home },
@@ -61,7 +62,7 @@ function NavLinkItem({ to, label, Icon, onClick }: NavLinkItemProps) {
 }
 
 export function Navbar() {
-  const { session, cerrarSesion } = useAuthStore()
+  const { session, negocio, cerrarSesion } = useAuthStore()
   const [sheetOpen, setSheetOpen] = useState(false)
 
   const email = session?.user?.email ?? ''
@@ -124,12 +125,24 @@ export function Navbar() {
                 <AvatarFallback>{inicial}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-48">
+            <DropdownMenuContent align="end" className="min-w-52">
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="font-normal text-xs text-muted-foreground truncate">
-                  {email}
+                <DropdownMenuLabel className="font-normal">
+                  {negocio && (
+                    <span className="block font-semibold text-foreground text-sm truncate">
+                      {negocio.nombre}
+                    </span>
+                  )}
+                  <span className="block text-xs text-muted-foreground truncate">{email}</span>
                 </DropdownMenuLabel>
               </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to={RUTAS.negocio.configuracion} className="flex items-center gap-2 cursor-pointer">
+                  <Settings className="size-4" />
+                  Mi negocio
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={cerrarSesion} variant="destructive">
                 <LogOut />

@@ -1,4 +1,5 @@
 import { supabase } from '@/shared/lib/supabase'
+import { getAuthContext } from '@/shared/lib/getNegocioId'
 import type { Producto, CompraInventario, CrearProducto, RegistrarCompra, ActualizarProducto } from './inventario.types'
 
 export const InventarioService = {
@@ -13,12 +14,11 @@ export const InventarioService = {
   },
 
   async crearProducto(datos: CrearProducto): Promise<Producto> {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No autenticado')
+    const { userId, negocioId } = getAuthContext()
 
     const { data, error } = await supabase
       .from('productos')
-      .insert({ ...datos, user_id: user.id, activo: true })
+      .insert({ ...datos, user_id: userId, negocio_id: negocioId, activo: true })
       .select()
       .single()
 
@@ -39,14 +39,14 @@ export const InventarioService = {
   },
 
   async registrarCompra(datos: RegistrarCompra): Promise<CompraInventario> {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No autenticado')
+    const { userId, negocioId } = getAuthContext()
 
     // 1. Insert en compras_inventario
     const { data: compra, error: compraError } = await supabase
       .from('compras_inventario')
       .insert({
-        user_id: user.id,
+        user_id: userId,
+        negocio_id: negocioId,
         producto_id: datos.producto_id,
         cantidad: datos.cantidad,
         precio_compra: datos.precio_unitario,
@@ -85,7 +85,8 @@ export const InventarioService = {
       const { error: movError } = await supabase
         .from('movimientos_caja')
         .insert({
-          user_id: user.id,
+          user_id: userId,
+          negocio_id: negocioId,
           tipo: 'compra_mercancia',
           valor: datos.cantidad * datos.precio_unitario,
           medio_pago: datos.medio_pago,
