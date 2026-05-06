@@ -8,6 +8,7 @@ interface NotificacionesState {
   noLeidas: number
 
   agregarNotificacion: (n: { tipo: TipoNotificacion; mensaje: string }) => void
+  eliminarNotificacion: (id: string) => void
   marcarTodasLeidas: () => void
   limpiar: () => void
 }
@@ -27,6 +28,18 @@ export const useNotificacionesStore = create<NotificacionesState>((set, get) => 
     const actuales = get().notificaciones
     const nuevas = [nueva, ...actuales].slice(0, MAX_NOTIFICACIONES)
     set({ notificaciones: nuevas, noLeidas: get().noLeidas + 1 })
+  },
+
+  eliminarNotificacion: (id) => {
+    set(state => {
+      const filtradas = state.notificaciones.filter(n => n.id !== id)
+      const eliminada = state.notificaciones.find(n => n.id === id)
+      const descNoLeida = eliminada && !eliminada.leida ? 1 : 0
+      return {
+        notificaciones: filtradas,
+        noLeidas: Math.max(0, state.noLeidas - descNoLeida),
+      }
+    })
   },
 
   marcarTodasLeidas: () => {

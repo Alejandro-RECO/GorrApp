@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bell } from 'lucide-react'
+import { Bell, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useNotificacionesStore } from '@/notificaciones'
 import type { TipoNotificacion } from '@/notificaciones'
@@ -22,7 +22,7 @@ function tiempoRelativo(iso: string): string {
 }
 
 export function NotificacionesBell() {
-  const { notificaciones, noLeidas, marcarTodasLeidas } = useNotificacionesStore()
+  const { notificaciones, noLeidas, marcarTodasLeidas, eliminarNotificacion } = useNotificacionesStore()
   const [abierto, setAbierto] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -105,9 +105,18 @@ export function NotificacionesBell() {
                         {tiempoRelativo(n.created_at)}
                       </p>
                     </div>
-                    {!n.leida && (
-                      <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                    )}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {!n.leida && (
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); eliminarNotificacion(n.id) }}
+                        className="flex size-5 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        aria-label="Eliminar notificación"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
