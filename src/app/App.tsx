@@ -4,6 +4,7 @@ import { LoginPage } from '@/auth/components/LoginPage'
 import { NegocioGuard } from '@/auth/components/NegocioGuard'
 import { Navbar } from '@/shared/components/layout/Navbar'
 import { Skeleton } from '@/components/ui/skeleton'
+import { supabase } from '@/shared/lib/supabase'
 import { AppRoutes } from './router'
 
 function App() {
@@ -13,6 +14,22 @@ function App() {
   useEffect(() => {
     inicializarSesion()
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    // Cuando el usuario vuelve a la pestaña, reiniciar el ciclo de auto-refresh
+    // de Supabase. Esto limpia cualquier _refreshingDeferred colgado que impida
+    // que las requests PostgREST se envíen al network.
+    const handleVisibility = () => {
+      if (document.hidden) {
+        supabase.auth.stopAutoRefresh()
+      } else {
+        supabase.auth.startAutoRefresh()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
   if (cargando) {
