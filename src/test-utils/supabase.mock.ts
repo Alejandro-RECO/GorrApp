@@ -12,9 +12,7 @@ export const mockAuth = {
 }
 
 // Chainable + thenable Supabase query builder mock
-export const mockQueryBuilder: Record<string, ReturnType<typeof vi.fn>> & {
-  then: (resolve: (v: unknown) => void, reject?: (e: unknown) => void) => Promise<unknown>
-} = {
+export const mockQueryBuilder = {
   select: vi.fn(),
   insert: vi.fn(),
   update: vi.fn(),
@@ -24,8 +22,10 @@ export const mockQueryBuilder: Record<string, ReturnType<typeof vi.fn>> & {
   lte: vi.fn(),
   order: vi.fn(),
   single: vi.fn(),
-  then: (resolve, reject) =>
+  then: (resolve: (v: unknown) => void, reject?: (e: unknown) => void) =>
     Promise.resolve({ data: null, error: null }).then(resolve, reject),
+} as unknown as Record<string, ReturnType<typeof vi.fn>> & {
+  then: (resolve: (v: unknown) => void, reject?: (e: unknown) => void) => Promise<unknown>
 }
 
 mockQueryBuilder.select.mockReturnValue(mockQueryBuilder)

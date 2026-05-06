@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { Copy, Plus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/auth'
@@ -24,11 +22,9 @@ export function NegocioPage() {
   useEffect(() => {
     cargarMiembros()
     cargarInvitaciones()
-  }, [cargarMiembros, cargarInvitaciones])
-
-  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNombreEdit(negocio?.nombre ?? '')
-  }, [negocio?.nombre])
+  }, [cargarMiembros, cargarInvitaciones, negocio?.nombre])
 
   const handleGuardarNombre = async () => {
     if (!nombreEdit.trim()) return
