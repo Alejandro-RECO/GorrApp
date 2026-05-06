@@ -15,6 +15,10 @@ export const CobrosService = {
   },
 
   async registrarAbono(params: CrearAbono): Promise<Abono> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('No autenticado')
+
+    // 1. Insert abono
     const { data: abonoInsertado, error: errorInsert } = await supabase
       .from('abonos')
       .insert({
@@ -22,32 +26,58 @@ export const CobrosService = {
         valor: params.valor,
         medio_pago: params.medioPago,
         notas: params.notas || null,
+        user_id: user.id,
       })
       .select()
       .single()
 
     if (errorInsert) throw new Error(errorInsert.message)
+    const abonoId = (abonoInsertado as Abono).id
 
-    const { data: cuotaActual, error: errorCuota } = await supabase
-      .from('cuotas')
-      .select('*, abonos(*)')
-      .eq('id', params.cuotaId)
-      .single()
-
-    if (errorCuota) throw new Error(errorCuota.message)
-    if (!cuotaActual) throw new Error('Cuota no encontrada')
-
-    const saldo = calcularSaldoPendiente(cuotaActual, cuotaActual.abonos || [])
-    
-    if (saldo <= 0) {
-      const { error: errorUpdate } = await supabase
+    try {
+      // 2. Verificar si cuota queda saldada
+      const { data: cuotaActual, error: errorCuota } = await supabase
         .from('cuotas')
-        .update({ estado: 'pagada' })
+        .select('*, abonos(*)')
         .eq('id', params.cuotaId)
-      if (errorUpdate) throw new Error(errorUpdate.message)
+        .single()
+
+      if (errorCuota) throw new Error(errorCuota.message)
+      if (!cuotaActual) throw new Error('Cuota no encontrada')
+
+      const saldo = calcularSaldoPendiente(cuotaActual, cuotaActual.abonos || [])
+
+      if (saldo <= 0) {
+        const { error: errorUpdate } = await supabase
+          .from('cuotas')
+          .update({ estado: 'pagada' })
+          .eq('id', params.cuotaId)
+        if (errorUpdate) throw new Error(errorUpdate.message)
+      }
+
+      // 3. Registrar ingreso en caja
+      const fecha = new Date().toISOString().split('T')[0]
+      const { error: errorCaja } = await supabase
+        .from('movimientos_caja')
+        .insert({
+          user_id: user.id,
+          tipo: 'ingreso_abono',
+          valor: params.valor,
+          medio_pago: params.medioPago,
+          fecha,
+          descripcion: 'Cobro de cuota',
+        })
+        .select()
+        .single()
+
+      if (errorCaja) throw new Error(errorCaja.message)
+    } catch (err) {
+      // Rollback manual: eliminar abono si pasos siguientes fallan
+      await supabase.from('abonos').delete().eq('id', abonoId)
+      throw err
     }
 
-    return abonoInsertado
+    return abonoInsertado as Abono
   },
 
   async obtenerAbonosPorCuota(cuotaId: string): Promise<Abono[]> {
