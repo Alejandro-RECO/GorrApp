@@ -4,7 +4,9 @@ export const mockAuth = {
   signInWithOAuth: vi.fn(),
   signOut: vi.fn(),
   getSession: vi.fn(),
-  onAuthStateChange: vi.fn(),
+  onAuthStateChange: vi.fn().mockReturnValue({
+    data: { subscription: { unsubscribe: vi.fn() } },
+  }),
   getUser: vi.fn().mockResolvedValue({
     data: { user: { id: 'test-user-id' } },
     error: null,

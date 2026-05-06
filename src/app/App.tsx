@@ -7,11 +7,13 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { AppRoutes } from './router'
 
 function App() {
-  const { session, cargando, inicializarSesion } = useAuthStore()
+  const { session, cargando } = useAuthStore()
+  const inicializarSesion = useAuthStore(s => s.inicializarSesion)
 
   useEffect(() => {
     inicializarSesion()
-  }, [inicializarSesion])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (cargando) {
     return (

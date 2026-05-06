@@ -46,6 +46,7 @@ export const useCajaStore = create<CajaState>((set, get) => ({
     try {
       await CajaService.registrarMovimiento(datos)
       await get().cargarMovimientosDia(get().fechaActiva)
+      set({ cargando: false })
     } catch {
       set({ error: 'No se pudo registrar el movimiento', cargando: false })
     }
