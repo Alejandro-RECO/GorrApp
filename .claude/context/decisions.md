@@ -121,6 +121,28 @@
   - `reportes/` no tiene tablas propias — solo queries de lectura.
   - El schema.md de cada módulo es la referencia para su service.
 
+## [DEC-08] Convención monetaria: pesos COP (no centavos)
+- **Fecha**: 2026-05-05
+- **Estado**: APROBADA
+- **Contexto**: DEC-07 especificó centavos INTEGER en la DB. En la
+  práctica, toda la codebase (services, stores, UI) usa pesos directos
+  sin multiplicar/dividir por 100. Los tests que asumían centavos
+  fallaban (cobros.utils.test.ts:130 + ListaClientes.test.tsx:153).
+- **Decisión**: Los valores monetarios en el cliente (TypeScript) son
+  en **pesos COP**. El schema SQL dice centavos pero el cliente no
+  hace la conversión. Cambiar a centavos requeriría migrar datos en
+  Supabase — costo inaceptable para el MVP.
+- **Razón**: La codebase completa ya usaba pesos. Forzar centavos
+  implicaría ×100 en cada form y ÷100 en cada display. Alta superficie
+  de error con beneficio marginal en el MVP (un solo operador,
+  no hay riesgo de overflow con pesos en INTEGER).
+- **Consecuencias**:
+  - `formatearPesos(n)` recibe pesos, no centavos.
+  - Los fixtures de tests usan valores en pesos (50000 = $50.000 COP).
+  - Antes de producción con multi-tenancy: evaluar migración a
+    centavos. Por ahora, documentar y continuar.
+  - DEC-07 columna "centavos COP" queda como aspiracional, no real.
+
 ---
 
 *Próximas decisiones pendientes:*
