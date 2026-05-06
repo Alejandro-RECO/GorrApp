@@ -20,6 +20,7 @@ const cuota = {
   ventas: {
     id: 'v-1',
     total: 50000,
+    notas: null,
     clientes: { id: 'cl-1', nombre: 'Carlos Ruiz', telefono: '3151234567' },
   },
 }
