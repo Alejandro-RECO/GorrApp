@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuthStore } from '@/auth'
+import { NotificacionesBell } from '@/notificaciones'
 import { RUTAS } from '@/app/routes'
 import { cn } from '@/lib/utils'
 import { Link } from 'react-router-dom'
@@ -116,8 +117,11 @@ export function Navbar() {
           ))}
         </nav>
 
+        {/* Notificaciones */}
+        <NotificacionesBell />
+
         {/* User menu */}
-        <div className="ml-auto">
+        <div>
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none rounded-full cursor-pointer">
               <Avatar size="sm">

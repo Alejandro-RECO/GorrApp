@@ -4,11 +4,13 @@ import { LoginPage } from '@/auth/components/LoginPage'
 import { NegocioGuard } from '@/auth/components/NegocioGuard'
 import { Navbar } from '@/shared/components/layout/Navbar'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Toaster } from '@/components/ui/sonner'
 import { supabase } from '@/shared/lib/supabase'
+import { iniciarNotificaciones, detenerNotificaciones } from '@/notificaciones'
 import { AppRoutes } from './router'
 
 function App() {
-  const { session, cargando } = useAuthStore()
+  const { session, cargando, profile } = useAuthStore()
   const inicializarSesion = useAuthStore(s => s.inicializarSesion)
 
   useEffect(() => {
@@ -17,9 +19,6 @@ function App() {
   }, [])
 
   useEffect(() => {
-    // Cuando el usuario vuelve a la pestaña, reiniciar el ciclo de auto-refresh
-    // de Supabase. Esto limpia cualquier _refreshingDeferred colgado que impida
-    // que las requests PostgREST se envíen al network.
     const handleVisibility = () => {
       if (document.hidden) {
         supabase.auth.stopAutoRefresh()
@@ -27,10 +26,17 @@ function App() {
         supabase.auth.startAutoRefresh()
       }
     }
-
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
+
+  // Iniciar/detener suscripciones Realtime cuando cambia sesión o negocio
+  useEffect(() => {
+    if (session?.user && profile?.negocio_id) {
+      iniciarNotificaciones(profile.negocio_id, session.user.id)
+    }
+    return () => detenerNotificaciones()
+  }, [session?.user?.id, profile?.negocio_id])
 
   if (cargando) {
     return (
@@ -56,6 +62,7 @@ function App() {
           <AppRoutes />
         </main>
       </NegocioGuard>
+      <Toaster position="bottom-center" richColors />
     </div>
   )
 }
