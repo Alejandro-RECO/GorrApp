@@ -1,4 +1,5 @@
 import { supabase } from '@/shared/lib/supabase'
+import { getAuthContext } from '@/shared/lib/getNegocioId'
 import type { Venta, CrearVenta, VentaConCliente } from './ventas.types'
 import { calcularCuotas } from './ventas.utils'
 
@@ -14,14 +15,11 @@ export const VentasService = {
   },
 
   async crear(datos: CrearVenta): Promise<Venta> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) throw new Error('No autenticado')
+    const { userId, negocioId } = getAuthContext()
 
     const { data: venta, error } = await supabase
       .from('ventas')
-      .insert({ ...datos, user_id: user.id })
+      .insert({ ...datos, user_id: userId, negocio_id: negocioId })
       .select()
       .single()
 
@@ -43,7 +41,8 @@ export const VentasService = {
             fecha_vencimiento: c.fecha_vencimiento,
             estado: c.estado,
             venta_id: venta.id,
-            user_id: user.id,
+            user_id: userId,
+            negocio_id: negocioId,
           }))
         )
 

@@ -3,6 +3,10 @@ import '@/test-utils/supabase.mock'
 import { mockSupabase, mockQueryBuilder } from '@/test-utils/supabase.mock'
 import { ClientesService } from '../clientes.service'
 
+vi.mock('@/shared/lib/getNegocioId', () => ({
+  getAuthContext: () => ({ userId: 'test-user-id', negocioId: 'test-negocio-id' }),
+}))
+
 const mockCliente = {
   id: 'c-1',
   user_id: 'test-user-id',
@@ -47,16 +51,6 @@ describe('ClientesService', () => {
       expect(mockQueryBuilder.insert).toHaveBeenCalled()
     })
 
-    it('lanza error si el usuario no está autenticado', async () => {
-      mockSupabase.auth.getUser.mockResolvedValueOnce({
-        data: { user: null },
-        error: null,
-      })
-
-      await expect(
-        ClientesService.crear({ nombre: 'Juan', telefono: '300' })
-      ).rejects.toThrow('No autenticado')
-    })
   })
 
   describe('actualizar', () => {

@@ -25,6 +25,10 @@ export const RUTAS = {
   reportes: {
     inicio: "/reportes",
   },
+  negocio: {
+    configuracion: "/negocio",
+    unirse: "/negocio/unirse",
+  },
   auth: {
     login: "/login",
   },

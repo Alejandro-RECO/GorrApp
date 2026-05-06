@@ -5,6 +5,7 @@ import { ListaCobros } from '@/cobros'
 import { CajaPage } from '@/caja'
 import { ListaProductos } from '@/inventario'
 import { ReportesPage } from '@/reportes'
+import { NegocioPage, CrearNegocioPage } from '@/negocio'
 import { IndexPage } from './pages/IndexPage'
 import { RUTAS } from './routes'
 
@@ -36,6 +37,8 @@ export function AppRoutes() {
       <Route path={RUTAS.cobros.lista} element={<ListaCobros />} />
       <Route path={RUTAS.inventario.lista} element={<ListaProductos />} />
       <Route path={RUTAS.reportes.inicio} element={<ReportesPage />} />
+      <Route path={RUTAS.negocio.configuracion} element={<NegocioPage />} />
+      <Route path={RUTAS.negocio.unirse} element={<CrearNegocioPage />} />
     </Routes>
   )
 }

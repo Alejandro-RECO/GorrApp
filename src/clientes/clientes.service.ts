@@ -1,4 +1,5 @@
 import { supabase } from '@/shared/lib/supabase'
+import { getAuthContext } from '@/shared/lib/getNegocioId'
 import type { Cliente, CrearCliente, ActualizarCliente } from './clientes.types'
 
 type SupabaseClienteRow = {
@@ -52,12 +53,11 @@ export const ClientesService = {
   },
 
   async crear(datos: CrearCliente): Promise<Cliente> {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No autenticado')
+    const { userId, negocioId } = getAuthContext()
 
     const { data, error } = await supabase
       .from('clientes')
-      .insert({ ...datos, user_id: user.id })
+      .insert({ ...datos, user_id: userId, negocio_id: negocioId })
       .select()
       .single()
 

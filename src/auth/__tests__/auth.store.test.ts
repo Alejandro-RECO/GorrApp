@@ -7,6 +7,7 @@ vi.mock('../auth.service', () => ({
     loginConGoogle: vi.fn(),
     cerrarSesion: vi.fn(),
     obtenerSesionActiva: vi.fn(),
+    cargarPerfil: vi.fn().mockResolvedValue({ profile: null, negocio: null }),
   },
 }))
 
@@ -14,7 +15,7 @@ import { useAuthStore } from '../auth.store'
 import { AuthService } from '../auth.service'
 
 const resetStore = () =>
-  useAuthStore.setState({ session: null, cargando: false })
+  useAuthStore.setState({ session: null, profile: null, negocio: null, cargando: false })
 
 beforeEach(() => {
   vi.clearAllMocks()

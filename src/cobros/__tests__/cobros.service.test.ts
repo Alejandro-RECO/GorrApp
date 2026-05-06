@@ -3,6 +3,10 @@ import '@/test-utils/supabase.mock'
 import { mockSupabase, mockQueryBuilder } from '@/test-utils/supabase.mock'
 import { CobrosService } from '../cobros.service'
 
+vi.mock('@/shared/lib/getNegocioId', () => ({
+  getAuthContext: () => ({ userId: 'test-user-id', negocioId: 'test-negocio-id' }),
+}))
+
 const mockCuota = {
   id: 'c1',
   venta_id: 'v1',
