@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
+import { Search } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -30,6 +31,7 @@ export function FormVenta() {
   const [tipo, setTipo] = useState<TipoVenta>('contado')
   const [medioPago, setMedioPago] = useState<MedioPago>('efectivo')
   const [notas, setNotas] = useState('')
+  const [busqueda, setBusqueda] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -37,6 +39,12 @@ export function FormVenta() {
   }, [clientes.length, cargarClientes])
 
   const clienteSeleccionado = clientes.find(c => c.id === clienteId)
+  const clientesFiltrados = busqueda.trim()
+    ? clientes.filter(c =>
+        c.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        c.telefono.includes(busqueda)
+      )
+    : clientes
   const totalCentavos = Math.round(parseFloat(totalPesos || '0'))
   const cuotasPreview = calcularCuotas({
     total: totalCentavos,
@@ -106,32 +114,65 @@ export function FormVenta() {
         <div className="flex flex-col gap-3">
           <Label className="text-base font-medium">¿A quién le vendes?</Label>
 
+          {/* Buscador */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Buscar por nombre o teléfono..."
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              className="pl-9 min-h-11"
+            />
+          </div>
+
           {cargandoClientes && clientes.length === 0 ? (
             <div className="flex flex-col gap-2">
-              {[1, 2, 3].map(i => <Skeleton key={i} className="h-11 w-full rounded-lg" />)}
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
             </div>
           ) : (
-            <div className="flex flex-col gap-2 max-h-72 overflow-y-auto">
-              {clientes.map(c => (
+            <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-0.5">
+              {clientesFiltrados.map(c => (
                 <button
                   key={c.id}
                   type="button"
                   onClick={() => { setClienteId(c.id); setError(null) }}
-                  className={`flex flex-col gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors min-h-11 ${
+                  className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors min-h-14 ${
                     clienteId === c.id
-                      ? 'border-primary bg-primary/5 text-primary'
+                      ? 'border-primary bg-primary/5'
                       : 'border-border hover:bg-accent'
                   }`}
                 >
-                  <span className="font-medium text-sm">{c.nombre}</span>
-                  <span className="text-xs text-muted-foreground">{c.telefono}</span>
+                  {/* Avatar inicial */}
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                    clienteId === c.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {c.nombre.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className={`font-medium text-sm truncate ${clienteId === c.id ? 'text-primary' : ''}`}>
+                      {c.nombre}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{c.telefono}</span>
+                  </div>
                 </button>
               ))}
-              {clientes.length === 0 && (
+
+              {clientesFiltrados.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-8">
-                  Sin clientes registrados
+                  {busqueda ? `Sin resultados para "${busqueda}"` : 'Sin clientes registrados'}
                 </p>
               )}
+            </div>
+          )}
+
+          {clienteId && clienteSeleccionado && (
+            <div className="flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-sm">
+              <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0">
+                {clienteSeleccionado.nombre.charAt(0).toUpperCase()}
+              </div>
+              <span className="font-medium text-primary truncate">{clienteSeleccionado.nombre}</span>
             </div>
           )}
         </div>
