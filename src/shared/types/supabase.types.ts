@@ -20,6 +20,7 @@ export type Database = {
           cuota_id: string
           id: string
           medio_pago: string
+          negocio_id: string
           notas: string | null
           user_id: string
           valor: number
@@ -29,6 +30,7 @@ export type Database = {
           cuota_id: string
           id?: string
           medio_pago: string
+          negocio_id: string
           notas?: string | null
           user_id: string
           valor: number
@@ -38,6 +40,7 @@ export type Database = {
           cuota_id?: string
           id?: string
           medio_pago?: string
+          negocio_id?: string
           notas?: string | null
           user_id?: string
           valor?: number
@@ -56,6 +59,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          negocio_id: string
           nombre: string
           notas: string | null
           telefono: string
@@ -65,6 +69,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          negocio_id: string
           nombre: string
           notas?: string | null
           telefono: string
@@ -74,6 +79,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          negocio_id?: string
           nombre?: string
           notas?: string | null
           telefono?: string
@@ -87,6 +93,7 @@ export type Database = {
           cantidad: number
           created_at: string
           id: string
+          negocio_id: string
           notas: string | null
           precio_compra: number
           producto_id: string
@@ -98,6 +105,7 @@ export type Database = {
           cantidad: number
           created_at?: string
           id?: string
+          negocio_id: string
           notas?: string | null
           precio_compra: number
           producto_id: string
@@ -109,6 +117,7 @@ export type Database = {
           cantidad?: number
           created_at?: string
           id?: string
+          negocio_id?: string
           notas?: string | null
           precio_compra?: number
           producto_id?: string
@@ -132,6 +141,7 @@ export type Database = {
           estado: string
           fecha_vencimiento: string
           id: string
+          negocio_id: string
           numero_cuota: number
           updated_at: string
           user_id: string
@@ -143,6 +153,7 @@ export type Database = {
           estado?: string
           fecha_vencimiento: string
           id?: string
+          negocio_id: string
           numero_cuota: number
           updated_at?: string
           user_id: string
@@ -154,6 +165,7 @@ export type Database = {
           estado?: string
           fecha_vencimiento?: string
           id?: string
+          negocio_id?: string
           numero_cuota?: number
           updated_at?: string
           user_id?: string
@@ -170,6 +182,39 @@ export type Database = {
           },
         ]
       }
+      invitaciones: {
+        Row: {
+          codigo: string
+          created_at: string
+          creado_por: string
+          expira_at: string
+          id: string
+          negocio_id: string
+          usado_at: string | null
+          usado_por: string | null
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          creado_por: string
+          expira_at: string
+          id?: string
+          negocio_id: string
+          usado_at?: string | null
+          usado_por?: string | null
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          creado_por?: string
+          expira_at?: string
+          id?: string
+          negocio_id?: string
+          usado_at?: string | null
+          usado_por?: string | null
+        }
+        Relationships: []
+      }
       movimientos_caja: {
         Row: {
           created_at: string
@@ -177,6 +222,7 @@ export type Database = {
           fecha: string
           id: string
           medio_pago: string
+          negocio_id: string
           referencia_id: string | null
           tipo: string
           user_id: string
@@ -188,6 +234,7 @@ export type Database = {
           fecha: string
           id?: string
           medio_pago: string
+          negocio_id: string
           referencia_id?: string | null
           tipo: string
           user_id: string
@@ -199,10 +246,29 @@ export type Database = {
           fecha?: string
           id?: string
           medio_pago?: string
+          negocio_id?: string
           referencia_id?: string | null
           tipo?: string
           user_id?: string
           valor?: number
+        }
+        Relationships: []
+      }
+      negocios: {
+        Row: {
+          created_at: string
+          id: string
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nombre?: string
         }
         Relationships: []
       }
@@ -211,6 +277,7 @@ export type Database = {
           activo: boolean
           created_at: string
           id: string
+          negocio_id: string
           nombre: string
           precio_venta: number
           stock_actual: number
@@ -222,6 +289,7 @@ export type Database = {
           activo?: boolean
           created_at?: string
           id?: string
+          negocio_id: string
           nombre: string
           precio_venta: number
           stock_actual?: number
@@ -233,11 +301,36 @@ export type Database = {
           activo?: boolean
           created_at?: string
           id?: string
+          negocio_id?: string
           nombre?: string
           precio_venta?: number
           stock_actual?: number
           stock_minimo?: number
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          negocio_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          negocio_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          negocio_id?: string
           user_id?: string
         }
         Relationships: []
@@ -248,6 +341,7 @@ export type Database = {
           created_at: string
           id: string
           medio_pago: string
+          negocio_id: string
           notas: string | null
           tipo: string
           total: number
@@ -259,6 +353,7 @@ export type Database = {
           created_at?: string
           id?: string
           medio_pago: string
+          negocio_id: string
           notas?: string | null
           tipo: string
           total: number
@@ -270,6 +365,7 @@ export type Database = {
           created_at?: string
           id?: string
           medio_pago?: string
+          negocio_id?: string
           notas?: string | null
           tipo?: string
           total?: number

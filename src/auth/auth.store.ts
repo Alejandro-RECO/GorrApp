@@ -34,13 +34,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   inicializarSesion: async () => {
-    const sesion = await AuthService.obtenerSesionActiva()
-    set({ session: sesion })
-    if (sesion) {
-      await get().cargarPerfil()
+    set({ cargando: true })
+    try {
+      const sesion = await AuthService.obtenerSesionActiva()
+      set({ session: sesion })
+      if (sesion) {
+        await get().cargarPerfil()
+      }
+    } finally {
+      set({ cargando: false })
     }
 
-    supabase.auth.onAuthStateChange(async (_event, sesion) => {
+    // onAuthStateChange solo maneja cambios DESPUÉS del arranque inicial.
+    // INITIAL_SESSION se ignora — ya fue manejado arriba para evitar doble cargarPerfil.
+    supabase.auth.onAuthStateChange(async (event, sesion) => {
+      if (event === 'INITIAL_SESSION') return
       set({ session: sesion })
       if (sesion) {
         await get().cargarPerfil()

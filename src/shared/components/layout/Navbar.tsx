@@ -4,7 +4,6 @@ import {
   Menu, LogOut, Home, ShoppingBag, Users,
   Wallet, Bell, Package, BarChart3, Settings,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from '@/components/ui/sheet'
@@ -137,7 +136,7 @@ export function Navbar() {
                 </DropdownMenuLabel>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem>
                 <Link to={RUTAS.negocio.configuracion} className="flex items-center gap-2 cursor-pointer">
                   <Settings className="size-4" />
                   Mi negocio

@@ -1,6 +1,6 @@
 import { supabase } from '@/shared/lib/supabase'
 import { getAuthContext } from '@/shared/lib/getNegocioId'
-import type { Cuota, CuotaConCliente, Abono, CrearAbono } from './cobros.types'
+import type { CuotaConCliente, Abono, CrearAbono } from './cobros.types'
 import { calcularSaldoPendiente } from './cobros.utils'
 
 export const CobrosService = {
@@ -12,7 +12,7 @@ export const CobrosService = {
       .order('fecha_vencimiento', { ascending: true })
 
     if (error) throw new Error(error.message)
-    return data || []
+    return (data as CuotaConCliente[]) || []
   },
 
   async registrarAbono(params: CrearAbono): Promise<Abono> {
@@ -46,7 +46,7 @@ export const CobrosService = {
       if (errorCuota) throw new Error(errorCuota.message)
       if (!cuotaActual) throw new Error('Cuota no encontrada')
 
-      const saldo = calcularSaldoPendiente(cuotaActual, cuotaActual.abonos || [])
+      const saldo = calcularSaldoPendiente(cuotaActual, (cuotaActual.abonos || []) as Abono[])
 
       if (saldo <= 0) {
         const { error: errorUpdate } = await supabase
@@ -90,6 +90,6 @@ export const CobrosService = {
       .order('created_at', { ascending: true })
 
     if (error) throw new Error(error.message)
-    return data || []
+    return (data as Abono[]) || []
   },
 }

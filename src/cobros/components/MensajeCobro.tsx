@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { formatearPesos } from '@/shared/lib/utils'
 import { generarMensajeCobro } from '@/cobros'
 import type { CuotaConCliente } from '@/cobros'
 
@@ -70,7 +69,6 @@ export function MensajeCobro({ cuota, onClose }: Props) {
               {copiado ? '¡Copiado!' : 'Copiar'}
             </Button>
             <Button
-              asChild
               className="flex-1 min-h-11"
             >
               <a

@@ -18,7 +18,7 @@ const cuota = {
   numero_cuota: 1,
   valor: 50000,
   fecha_vencimiento: '2099-12-31',
-  estado: 'pendiente',
+  estado: 'pendiente' as const,
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
   ventas: {
