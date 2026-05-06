@@ -25,7 +25,7 @@ export const AuthService = {
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
-      .single()
+      .maybeSingle()
 
     if (error || !profile) return { profile: null, negocio: null }
 
@@ -41,25 +41,38 @@ export const AuthService = {
     }
   },
 
-  async crearNegocioYPerfil(nombre: string): Promise<{ profile: Profile; negocio: Negocio }> {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('No autenticado')
+  async crearNegocioYPerfil(nombre: string) {
+    const { data: sessionData } = await supabase.auth.getSession()
 
+    if (!sessionData.session) {
+      throw new Error('Sesión no lista aún')
+    }
+
+    const user = sessionData.session.user
+
+    // Crear negocio (user_id se asigna automático en DB)
     const { data: negocio, error: eNeg } = await supabase
       .from('negocios')
       .insert({ nombre })
       .select()
       .single()
+
     if (eNeg) throw new Error(eNeg.message)
 
+    // Crear o actualizar profile
     const { data: profile, error: eProf } = await supabase
       .from('profiles')
-      .insert({ user_id: user.id, negocio_id: negocio.id, email: user.email ?? null })
+      .upsert({
+        user_id: user.id,
+        negocio_id: negocio.id,
+        email: user.email ?? null
+      })
       .select()
       .single()
+
     if (eProf) throw new Error(eProf.message)
 
-    return { profile: profile as Profile, negocio: negocio as Negocio }
+    return { profile, negocio }
   },
 
   async unirseConCodigo(codigo: string): Promise<void> {

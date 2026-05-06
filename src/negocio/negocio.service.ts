@@ -29,7 +29,7 @@ export const NegocioService = {
       .from('invitaciones')
       .insert({ negocio_id: negocioId, codigo, creado_por: userId, expira_at })
       .select()
-      .single()
+      .maybeSingle()
 
     if (error) throw new Error(error.message)
     return data as Invitacion
