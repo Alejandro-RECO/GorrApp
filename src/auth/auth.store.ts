@@ -60,6 +60,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // INITIAL_SESSION se ignora — ya fue manejado arriba.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, sesion) => {
       if (event === 'INITIAL_SESSION') return
+      if (event === 'TOKEN_REFRESHED') {
+        // JWT renovado — el profile y negocio no cambian, solo actualizar sesión
+        set({ session: sesion })
+        return
+      }
       set({ session: sesion })
       if (sesion) {
         await get().cargarPerfil()
