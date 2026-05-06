@@ -1,1 +1,8 @@
-export {}
+export type { ResumenGeneral, VentasPeriodo, ItemCartera } from './reportes.types'
+export { useReportesStore } from './reportes.store'
+export { calcularTotalVendido, calcularTotalCartera, calcularRentabilidad, agruparVentasPorDia, clientesEnMora } from './reportes.utils'
+export { ReportesService } from './reportes.service'
+export { ReportesPage } from './components/ReportesPage'
+export { ResumenGeneralPanel } from './components/ResumenGeneral'
+export { GraficoVentas } from './components/GraficoVentas'
+export { TablaCartera } from './components/TablaCartera'
