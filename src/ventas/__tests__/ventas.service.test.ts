@@ -48,7 +48,9 @@ beforeEach(() => {
 describe('VentasService', () => {
   describe('crear', () => {
     it('con tipo contado inserta en tabla ventas', async () => {
-      mockQueryBuilder.single.mockResolvedValueOnce({ data: mockVenta, error: null })
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockVenta, error: null })
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })
 
       await VentasService.crear(datosContado)
 
@@ -56,8 +58,21 @@ describe('VentasService', () => {
       expect(mockQueryBuilder.insert).toHaveBeenCalled()
     })
 
+    it('con tipo contado registra ingreso_venta en movimientos_caja', async () => {
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockVenta, error: null })
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })
+
+      await VentasService.crear(datosContado)
+
+      const calls = mockSupabase.from.mock.calls.map((c: string[]) => c[0])
+      expect(calls).toContain('movimientos_caja')
+    })
+
     it('con tipo contado NO inserta en tabla cuotas', async () => {
-      mockQueryBuilder.single.mockResolvedValueOnce({ data: mockVenta, error: null })
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockVenta, error: null })
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })
 
       await VentasService.crear(datosContado)
 

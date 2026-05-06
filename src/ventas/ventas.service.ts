@@ -17,6 +17,7 @@ export const VentasService = {
   async crear(datos: CrearVenta): Promise<Venta> {
     const { userId, negocioId } = getAuthContext()
 
+    // 1. Insertar venta
     const { data: venta, error } = await supabase
       .from('ventas')
       .insert({ ...datos, user_id: userId, negocio_id: negocioId })
@@ -24,8 +25,33 @@ export const VentasService = {
       .single()
 
     if (error) throw new Error(error.message)
+    const ventaId = (venta as unknown as Venta).id
 
-    if (datos.tipo !== 'contado') {
+    if (datos.tipo === 'contado') {
+      // 2. Registrar ingreso en caja — rollback venta si falla
+      const fecha = new Date().toISOString().split('T')[0]
+      try {
+        const { error: errorCaja } = await supabase
+          .from('movimientos_caja')
+          .insert({
+            user_id: userId,
+            negocio_id: negocioId,
+            tipo: 'ingreso_venta',
+            valor: datos.total,
+            medio_pago: datos.medio_pago,
+            fecha,
+            descripcion: 'Venta de contado',
+          })
+          .select()
+          .single()
+
+        if (errorCaja) throw new Error(errorCaja.message)
+      } catch (err) {
+        await supabase.from('ventas').delete().eq('id', ventaId)
+        throw err
+      }
+    } else {
+      // 2. Crear cuotas para venta fiada
       const cuotas = calcularCuotas({
         total: datos.total,
         tipo: datos.tipo,
@@ -40,7 +66,7 @@ export const VentasService = {
             valor: c.valor,
             fecha_vencimiento: c.fecha_vencimiento,
             estado: c.estado,
-            venta_id: venta.id,
+            venta_id: ventaId,
             user_id: userId,
             negocio_id: negocioId,
           }))
