@@ -22,9 +22,13 @@ export const AuthService = {
   },
 
   async cargarPerfil(): Promise<{ profile: Profile | null; negocio: Negocio | null }> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { profile: null, negocio: null }
+
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
+      .eq('user_id', user.id)
       .maybeSingle()
 
     if (error || !profile) return { profile: null, negocio: null }
