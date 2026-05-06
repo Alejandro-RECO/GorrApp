@@ -25,9 +25,17 @@ export const ReportesService = {
       .order('created_at', { ascending: false })
     if (eMov) throw new Error(eMov.message)
 
+    const { data: comprasData, error: eCompras } = await supabase
+      .from('compras_inventario')
+      .select('total')
+      .order('created_at', { ascending: false })
+    if (eCompras) throw new Error(eCompras.message)
+
     const ventas = (ventasData || []) as Venta[]
     const cuotas = (cuotasData || []) as Cuota[]
     const movimientos = (movimientosData || []) as MovimientoCaja[]
+    const totalCompras = ((comprasData || []) as { total: number }[])
+      .reduce((sum, c) => sum + c.total, 0)
 
     const totalVendido = calcularTotalVendido(ventas)
     const totalCartera = calcularTotalCartera(cuotas)
@@ -40,13 +48,20 @@ export const ReportesService = {
           return sum + (esIngreso ? m.valor : -m.valor)
         }, 0)
 
+    const ventaIdsConMora = new Set(
+      cuotas.filter(c => c.estado === 'vencida').map(c => c.venta_id)
+    )
+    const clienteIdsEnMora = new Set(
+      ventas.filter(v => ventaIdsConMora.has(v.id)).map(v => v.cliente_id)
+    )
+
     return {
       totalVendido,
       totalCartera,
       totalEfectivo: calcSaldo('efectivo'),
       totalDigital: calcSaldo('digital'),
-      rentabilidad: totalVendido,
-      clientesEnMora: 0,
+      rentabilidad: totalVendido - totalCompras,
+      clientesEnMora: clienteIdsEnMora.size,
     }
   },
 
@@ -62,13 +77,22 @@ export const ReportesService = {
   },
 
   async obtenerCarteraPendiente(): Promise<CuotaConCliente[]> {
-    const { data, error } = await supabase
+    const selectStr = '*, ventas(id, total, clientes(id, nombre, telefono))'
+
+    const { data: pendientes, error: ePend } = await supabase
       .from('cuotas')
-      .select('*, ventas(id, total, clientes(id, nombre, telefono))')
+      .select(selectStr)
       .eq('estado', 'pendiente')
       .order('fecha_vencimiento', { ascending: true })
+    if (ePend) throw new Error(ePend.message)
 
-    if (error) throw new Error(error.message)
-    return (data || []) as CuotaConCliente[]
+    const { data: vencidas, error: eVenc } = await supabase
+      .from('cuotas')
+      .select(selectStr)
+      .eq('estado', 'vencida')
+      .order('fecha_vencimiento', { ascending: true })
+    if (eVenc) throw new Error(eVenc.message)
+
+    return [...(pendientes || []), ...(vencidas || [])] as CuotaConCliente[]
   },
 }

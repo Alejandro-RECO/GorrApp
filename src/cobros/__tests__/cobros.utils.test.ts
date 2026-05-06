@@ -127,6 +127,6 @@ describe('generarMensajeCobro', () => {
     const mensaje = generarMensajeCobro(cliente, cuotas)
 
     expect(mensaje).toContain('Juan Pérez')
-    expect(mensaje).toContain('1.000')
+    expect(mensaje).toContain('100.000')
   })
 })

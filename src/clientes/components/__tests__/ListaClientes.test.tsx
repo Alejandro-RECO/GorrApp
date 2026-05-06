@@ -149,7 +149,7 @@ describe('ListaClientes', () => {
 
     render(<ListaClientes />)
 
-    // 50000 centavos = $500 COP
-    expect(screen.getByText(/\$\s*500/)).toBeInTheDocument()
+    // 50000 pesos = $ 50.000
+    expect(screen.getByText(/50\.000/)).toBeInTheDocument()
   })
 })
