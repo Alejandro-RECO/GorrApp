@@ -4,7 +4,7 @@
 ---
 
 ## Estado actual
-- **Fase**: ✅ MVP COMPLETO — todos los módulos implementados y mergeados a master
+- **Fase**: Sprint 2 — fix críticos aplicados, 134/134 tests verde
 - **Sprint activo**: Sprint 2 (polish, bugs, producción)
 - **Rama activa**: master
 
@@ -22,7 +22,7 @@
 | Inventario  | HU-06 | 12    | ✅ |
 | Reportes    | HU-07 | 17    | ✅ |
 
-**Total tests en suite**: 134 (132 passing, 2 pre-existing failures — ver deuda técnica)
+**Total tests en suite**: 134 — **134/134 passing** ✅ (primer 100% del proyecto)
 
 ---
 
@@ -99,12 +99,12 @@ Prioridades sugeridas:
 ## Deuda técnica registrada
 
 ### Crítica (bloquea producción)
-- [ ] **Fix**: centavos vs pesos — inconsistencia sistémica. Toda la codebase usa pesos directamente pero docs dicen centavos. Síntomas: cobros.utils.test.ts:130 + ListaClientes.test.tsx:153 (2 tests rojos). Corregir unificando convención antes de deploy.
+- [x] ~~**Fix**: centavos vs pesos~~ — RESUELTO. DEC-08: pesos en cliente. Tests 134/134.
 
 ### Alta (afecta datos)
-- [ ] **Fix**: `ResumenGeneral.rentabilidad` = `totalVendido` (no resta compras). Implementar query a `compras_inventario`.
-- [ ] **Fix**: `clientesEnMora: 0` hardcoded en obtenerResumenGeneral.
-- [ ] **Fix**: `obtenerCarteraPendiente` omite cuotas con `estado === 'vencida'`. Necesita `.in('estado', ['pendiente','vencida'])`.
+- [x] ~~**Fix**: `ResumenGeneral.rentabilidad` = `totalVendido`~~ — RESUELTO. Resta `compras_inventario`.
+- [x] ~~**Fix**: `clientesEnMora: 0` hardcoded~~ — RESUELTO. Calculado desde ventas + cuotas.
+- [x] ~~**Fix**: `obtenerCarteraPendiente` omite `estado === 'vencida'`~~ — RESUELTO. Dos queries (pendiente + vencida).
 - [ ] **Fix**: VentasService.crear() sin compensating delete si falla insert cuotas.
 
 ### Media (calidad de código)
@@ -124,4 +124,4 @@ Prioridades sugeridas:
 
 ---
 
-*Última actualización: 2026-05-05 — merge HU-07 a master. MVP COMPLETO.*
+*Última actualización: 2026-05-05 — Sprint 2 fix críticos. 134/134 tests verde. DEC-08 registrada.*
