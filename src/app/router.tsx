@@ -16,15 +16,6 @@ function ClienteConHistorial() {
   return <DetalleCliente historial={<ListaVentas clienteId={id} />} />
 }
 
-function PlaceholderPage({ titulo }: { titulo: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center p-12 gap-2 text-center">
-      <p className="text-xl font-semibold">{titulo}</p>
-      <p className="text-sm text-muted-foreground">Próximamente disponible</p>
-    </div>
-  )
-}
-
 export function AppRoutes() {
   return (
     <Routes>
