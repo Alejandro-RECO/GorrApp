@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -28,6 +29,7 @@ export function FormVenta() {
   const [totalPesos, setTotalPesos] = useState('')
   const [tipo, setTipo] = useState<TipoVenta>('contado')
   const [medioPago, setMedioPago] = useState<MedioPago>('efectivo')
+  const [notas, setNotas] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -65,6 +67,7 @@ export function FormVenta() {
         total: totalCentavos,
         tipo,
         medio_pago: medioPago,
+        notas: notas.trim() || null,
       })
       navigate(RUTAS.ventas.lista)
     } catch {
@@ -184,6 +187,18 @@ export function FormVenta() {
               </SelectContent>
             </Select>
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="notas">Notas <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+            <Textarea
+              id="notas"
+              placeholder="Ej: gorras negras talla M, cliente preguntó por descuento..."
+              value={notas}
+              onChange={e => setNotas(e.target.value)}
+              className="resize-none"
+              rows={3}
+            />
+          </div>
         </div>
       )}
 
@@ -213,6 +228,16 @@ export function FormVenta() {
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Pago</p>
             <p className="text-sm font-medium capitalize">{medioPago}</p>
           </div>
+
+          {notas.trim() && (
+            <>
+              <Separator />
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Notas</p>
+                <p className="text-sm">{notas.trim()}</p>
+              </div>
+            </>
+          )}
 
           {cuotasPreview.length > 0 && (
             <>

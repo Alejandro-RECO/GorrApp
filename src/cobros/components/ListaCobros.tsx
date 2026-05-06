@@ -80,6 +80,12 @@ export function ListaCobros() {
                     </div>
                   </div>
 
+                  {cuota.ventas?.notas && (
+                    <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-2">
+                      {cuota.ventas.notas}
+                    </p>
+                  )}
+
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
                       Vence: {new Date(cuota.fecha_vencimiento).toLocaleDateString('es-CO')}

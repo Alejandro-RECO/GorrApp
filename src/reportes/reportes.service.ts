@@ -77,7 +77,7 @@ export const ReportesService = {
   },
 
   async obtenerCarteraPendiente(): Promise<CuotaConCliente[]> {
-    const selectStr = '*, ventas(id, total, clientes(id, nombre, telefono))'
+    const selectStr = '*, ventas(id, total, notas, clientes(id, nombre, telefono))'
 
     const { data: pendientes, error: ePend } = await supabase
       .from('cuotas')

@@ -7,7 +7,7 @@ export const CobrosService = {
   async obtenerCuotasPendientes(): Promise<CuotaConCliente[]> {
     const { data, error } = await supabase
       .from('cuotas')
-      .select('*, ventas(id, total, clientes(id, nombre, telefono))')
+      .select('*, ventas(id, total, notas, clientes(id, nombre, telefono))')
       .eq('estado', 'pendiente')
       .order('fecha_vencimiento', { ascending: true })
 

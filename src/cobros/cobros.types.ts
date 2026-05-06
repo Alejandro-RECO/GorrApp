@@ -15,6 +15,7 @@ export interface CuotaConCliente extends Cuota {
   ventas: {
     id: string
     total: number
+    notas: string | null
     clientes: {
       id: string
       nombre: string
