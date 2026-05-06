@@ -51,6 +51,7 @@ describe('CobrosService', () => {
       mockQueryBuilder.single
         .mockResolvedValueOnce({ data: mockAbono, error: null })
         .mockResolvedValueOnce({ data: { ...mockCuota, abonos: [mockAbono] }, error: null })
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })
 
       await CobrosService.registrarAbono({
         cuotaId: 'c1',
@@ -60,6 +61,22 @@ describe('CobrosService', () => {
 
       expect(mockSupabase.from).toHaveBeenCalledWith('abonos')
       expect(mockQueryBuilder.insert).toHaveBeenCalled()
+    })
+
+    it('registra ingreso_abono en movimientos_caja', async () => {
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockAbono, error: null })
+        .mockResolvedValueOnce({ data: { ...mockCuota, abonos: [mockAbono] }, error: null })
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })
+
+      await CobrosService.registrarAbono({
+        cuotaId: 'c1',
+        valor: 50000,
+        medioPago: 'efectivo'
+      })
+
+      const llamadas = mockSupabase.from.mock.calls.map((c: string[]) => c[0])
+      expect(llamadas).toContain('movimientos_caja')
     })
   })
 
