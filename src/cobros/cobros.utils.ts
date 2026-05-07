@@ -18,8 +18,9 @@ export function cuotaEstaVencida(cuota: Cuota): boolean {
 
 export function generarMensajeCobro(
   cliente: { nombre: string; telefono: string },
-  cuotas: Cuota[]
+  cuotas: (Cuota & { abonos?: Abono[] })[]
 ): string {
-  const total = cuotas.reduce((sum, c) => sum + c.valor, 0)
-  return `Hola ${cliente.nombre}, tienes ${cuotas.length} cuota(s) pendiente(s) por un total de ${formatearPesos(total)}.`
+  const saldoTotal = cuotas.reduce((sum, c) =>
+    sum + calcularSaldoPendiente(c, c.abonos || []), 0)
+  return `Hola ${cliente.nombre}, tienes ${cuotas.length} cuota(s) pendiente(s) con un saldo de ${formatearPesos(saldoTotal)}.`
 }

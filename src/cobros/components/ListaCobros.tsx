@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatearPesos } from '@/shared/lib/utils'
-import { useCobrosStore } from '@/cobros'
+import { useCobrosStore, calcularSaldoPendiente } from '@/cobros'
 import type { CuotaConCliente } from '@/cobros'
 import { FormAbono } from './FormAbono'
 import { MensajeCobro } from './MensajeCobro'
@@ -65,6 +65,9 @@ export function ListaCobros() {
             const today = new Date().toISOString().split('T')[0]
             const estaVencida = cuota.fecha_vencimiento < today && cuota.estado !== 'pagada'
 
+            const saldo = calcularSaldoPendiente(cuota, cuota.abonos || [])
+            const tieneAbonoParcial = (cuota.abonos?.length ?? 0) > 0 && saldo > 0
+
             return (
               <Card key={cuota.id} className="p-4">
                 <div className="flex flex-col gap-3">
@@ -75,7 +78,11 @@ export function ListaCobros() {
                         <EstadoBadge estado={cuota.estado} vencida={estaVencida} />
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        Cuota {cuota.numero_cuota} · {formatearPesos(cuota.valor)}
+                        Cuota {cuota.numero_cuota} ·{' '}
+                        <span className="font-semibold text-foreground">{formatearPesos(saldo)}</span>
+                        {tieneAbonoParcial && (
+                          <span className="text-xs ml-1">(de {formatearPesos(cuota.valor)})</span>
+                        )}
                       </span>
                     </div>
                   </div>

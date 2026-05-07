@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react'
 
 vi.mock('@/cobros', () => ({
   useCobrosStore: vi.fn(),
+  calcularSaldoPendiente: (cuota: { valor: number }, abonos: { valor: number }[]) =>
+    cuota.valor - abonos.reduce((s, a) => s + a.valor, 0),
 }))
 
 vi.mock('../FormAbono', () => ({

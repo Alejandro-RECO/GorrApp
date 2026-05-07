@@ -12,6 +12,7 @@ export interface Cuota {
 }
 
 export interface CuotaConCliente extends Cuota {
+  abonos?: Abono[]
   ventas: {
     id: string
     total: number
