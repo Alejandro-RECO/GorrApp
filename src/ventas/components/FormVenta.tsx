@@ -1,42 +1,55 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Search, Minus, Plus, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
-import { Search } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { formatearPesos } from '@/shared/lib/utils'
 import { useClientesStore } from '@/clientes'
+import { useInventarioStore } from '@/inventario'
 import { useVentasStore, calcularCuotas } from '@/ventas'
-import type { TipoVenta, MedioPago } from '@/ventas'
+import type { TipoVenta, MedioPago, ProductoVenta } from '@/ventas'
 import { RUTAS } from '@/app/routes'
 
-type Paso = 1 | 2 | 3
+type Paso = 1 | 2 | 3 | 4
 
 export function FormVenta() {
   const navigate = useNavigate()
 
   const { clientes, cargando: cargandoClientes, cargarClientes } = useClientesStore()
+  const { productos, cargando: cargandoProductos, cargarProductos } = useInventarioStore()
   const { agregarVenta, cargando: enviando } = useVentasStore()
 
   const [paso, setPaso] = useState<Paso>(1)
   const [clienteId, setClienteId] = useState('')
+  const [busqueda, setBusqueda] = useState('')
+
+  // Paso 2 — productos
+  const [productosSeleccionados, setProductosSeleccionados] = useState<ProductoVenta[]>([])
+  const [busquedaProducto, setBusquedaProducto] = useState('')
+
+  // Paso 3 — detalles
   const [totalPesos, setTotalPesos] = useState('')
   const [tipo, setTipo] = useState<TipoVenta>('contado')
   const [medioPago, setMedioPago] = useState<MedioPago>('efectivo')
   const [notas, setNotas] = useState('')
-  const [busqueda, setBusqueda] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (clientes.length === 0) cargarClientes()
   }, [clientes.length, cargarClientes])
+
+  useEffect(() => {
+    if (paso === 2) cargarProductos()
+  }, [paso, cargarProductos])
 
   const clienteSeleccionado = clientes.find(c => c.id === clienteId)
   const clientesFiltrados = busqueda.trim()
@@ -45,6 +58,13 @@ export function FormVenta() {
         c.telefono.includes(busqueda)
       )
     : clientes
+
+  const productosFiltrados = busquedaProducto.trim()
+    ? productos.filter(p =>
+        p.nombre.toLowerCase().includes(busquedaProducto.toLowerCase())
+      )
+    : productos
+
   const totalCentavos = Math.round(parseFloat(totalPesos || '0'))
   const cuotasPreview = calcularCuotas({
     total: totalCentavos,
@@ -52,19 +72,46 @@ export function FormVenta() {
     fechaVenta: new Date(),
   })
 
+  const setProductoCantidad = (productoId: string, delta: number, nombre: string, stockActual: number) => {
+    setProductosSeleccionados(prev => {
+      const existente = prev.find(p => p.producto_id === productoId)
+      if (!existente) {
+        if (delta <= 0) return prev
+        return [...prev, { producto_id: productoId, cantidad: 1, nombre, stock_actual: stockActual }]
+      }
+      const nuevaCantidad = existente.cantidad + delta
+      if (nuevaCantidad <= 0) return prev.filter(p => p.producto_id !== productoId)
+      return prev.map(p =>
+        p.producto_id === productoId ? { ...p, cantidad: nuevaCantidad } : p
+      )
+    })
+  }
+
+  const setCantidadDirecta = (productoId: string, valor: number, nombre: string, stockActual: number) => {
+    if (valor <= 0) {
+      setProductosSeleccionados(prev => prev.filter(p => p.producto_id !== productoId))
+      return
+    }
+    setProductosSeleccionados(prev => {
+      const existente = prev.find(p => p.producto_id === productoId)
+      if (!existente) return [...prev, { producto_id: productoId, cantidad: valor, nombre, stock_actual: stockActual }]
+      return prev.map(p => p.producto_id === productoId ? { ...p, cantidad: valor } : p)
+    })
+  }
+
   const handleSiguiente = () => {
     if (paso === 1 && !clienteId) {
       setError('Selecciona un cliente')
       return
     }
-    if (paso === 2) {
+    if (paso === 3) {
       if (!totalPesos || parseFloat(totalPesos) <= 0) {
         setError('El total debe ser mayor a 0')
         return
       }
     }
     setError(null)
-    setPaso(p => (p < 3 ? ((p + 1) as Paso) : p))
+    setPaso(p => (p < 4 ? ((p + 1) as Paso) : p))
   }
 
   const handleConfirmar = async () => {
@@ -76,6 +123,10 @@ export function FormVenta() {
         tipo,
         medio_pago: medioPago,
         notas: notas.trim() || null,
+        productos: productosSeleccionados.map(p => ({
+          producto_id: p.producto_id,
+          cantidad: p.cantidad,
+        })),
       })
       navigate(RUTAS.ventas.lista)
     } catch {
@@ -83,19 +134,17 @@ export function FormVenta() {
     }
   }
 
+  const totalPasos = 4
+
   return (
     <div className="flex flex-col gap-4 p-4 max-w-lg mx-auto">
-      {/* Header */}
       <div>
         <h1 className="text-xl font-semibold">Nueva venta</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Paso {paso} de 3
-        </p>
+        <p className="text-sm text-muted-foreground mt-0.5">Paso {paso} de {totalPasos}</p>
       </div>
 
-      {/* Step indicators */}
       <div className="flex gap-2">
-        {([1, 2, 3] as Paso[]).map(n => (
+        {([1, 2, 3, 4] as Paso[]).map(n => (
           <div
             key={n}
             className={`h-1 flex-1 rounded-full transition-colors ${
@@ -105,16 +154,13 @@ export function FormVenta() {
         ))}
       </div>
 
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {/* PASO 1 — Cliente */}
       {paso === 1 && (
         <div className="flex flex-col gap-3">
           <Label className="text-base font-medium">¿A quién le vendes?</Label>
 
-          {/* Buscador */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
             <Input
@@ -142,7 +188,6 @@ export function FormVenta() {
                       : 'border-border hover:bg-accent'
                   }`}
                 >
-                  {/* Avatar inicial */}
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                     clienteId === c.id
                       ? 'bg-primary text-primary-foreground'
@@ -158,7 +203,6 @@ export function FormVenta() {
                   </div>
                 </button>
               ))}
-
               {clientesFiltrados.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-8">
                   {busqueda ? `Sin resultados para "${busqueda}"` : 'Sin clientes registrados'}
@@ -178,8 +222,99 @@ export function FormVenta() {
         </div>
       )}
 
-      {/* PASO 2 — Monto y tipo */}
+      {/* PASO 2 — Productos */}
       {paso === 2 && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-medium">¿Qué productos vendiste?</Label>
+            {productosSeleccionados.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {productosSeleccionados.reduce((s, p) => s + p.cantidad, 0)} unidades
+              </span>
+            )}
+          </div>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Buscar producto..."
+              value={busquedaProducto}
+              onChange={e => setBusquedaProducto(e.target.value)}
+              className="pl-9 min-h-11"
+            />
+          </div>
+
+          {cargandoProductos && productos.length === 0 ? (
+            <div className="flex flex-col gap-2">
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-0.5">
+              {productosFiltrados.filter(p => p.activo).map(p => {
+                const seleccionado = productosSeleccionados.find(s => s.producto_id === p.id)
+                const cantidad = seleccionado?.cantidad ?? 0
+                const stockInsuficiente = cantidad > p.stock_actual
+
+                return (
+                  <div
+                    key={p.id}
+                    className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${
+                      cantidad > 0 ? 'border-primary bg-primary/5' : 'border-border'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{p.nombre}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-xs text-muted-foreground">
+                          Stock: {p.stock_actual}
+                        </span>
+                        {stockInsuficiente && (
+                          <Badge variant="destructive" className="text-[10px] py-0 h-4 gap-0.5">
+                            <AlertTriangle className="size-2.5" />
+                            Insuficiente
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => setProductoCantidad(p.id, -1, p.nombre, p.stock_actual)}
+                        disabled={cantidad === 0}
+                        className="flex size-8 items-center justify-center rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition-colors"
+                      >
+                        <Minus className="size-3.5" />
+                      </button>
+                      <Input
+                        type="number"
+                        value={cantidad || ''}
+                        onChange={e => setCantidadDirecta(p.id, parseInt(e.target.value) || 0, p.nombre, p.stock_actual)}
+                        className="w-12 h-8 text-center text-sm p-1"
+                        min={0}
+                        placeholder="0"
+                      />
+                      <button
+                        onClick={() => setProductoCantidad(p.id, 1, p.nombre, p.stock_actual)}
+                        className="flex size-8 items-center justify-center rounded-lg border border-border hover:bg-muted transition-colors"
+                      >
+                        <Plus className="size-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+              {productosFiltrados.filter(p => p.activo).length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  {busquedaProducto ? `Sin resultados para "${busquedaProducto}"` : 'Sin productos en inventario'}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* PASO 3 — Total, tipo y pago */}
+      {paso === 3 && (
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="total">Total (pesos)</Label>
@@ -243,8 +378,8 @@ export function FormVenta() {
         </div>
       )}
 
-      {/* PASO 3 — Resumen */}
-      {paso === 3 && (
+      {/* PASO 4 — Resumen */}
+      {paso === 4 && (
         <Card className="p-4 flex flex-col gap-3">
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Cliente</p>
@@ -280,6 +415,21 @@ export function FormVenta() {
             </>
           )}
 
+          {productosSeleccionados.length > 0 && (
+            <>
+              <Separator />
+              <div className="flex flex-col gap-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Productos vendidos</p>
+                {productosSeleccionados.map(p => (
+                  <div key={p.producto_id} className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{p.nombre}</span>
+                    <span className="font-medium">× {p.cantidad}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
           {cuotasPreview.length > 0 && (
             <>
               <Separator />
@@ -289,7 +439,7 @@ export function FormVenta() {
                   <div key={c.numero_cuota} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Cuota {c.numero_cuota}</span>
                     <div className="text-right">
-                      <span className="font-medium">{(formatearPesos(c.valor))}</span>
+                      <span className="font-medium">{formatearPesos(c.valor)}</span>
                       <span className="text-xs text-muted-foreground ml-2">
                         vence {c.fecha_vencimiento}
                       </span>
@@ -302,7 +452,7 @@ export function FormVenta() {
         </Card>
       )}
 
-      {/* Navigation buttons */}
+      {/* Navegación */}
       <div className="flex gap-3 mt-2">
         {paso > 1 && (
           <Button
@@ -316,7 +466,18 @@ export function FormVenta() {
           </Button>
         )}
 
-        {paso < 3 ? (
+        {paso === 2 && productosSeleccionados.length === 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="flex-1 min-h-11 text-muted-foreground"
+            onClick={() => { setError(null); setPaso(3) }}
+          >
+            Sin productos
+          </Button>
+        )}
+
+        {paso < 4 ? (
           <Button
             type="button"
             className="flex-1 min-h-11"

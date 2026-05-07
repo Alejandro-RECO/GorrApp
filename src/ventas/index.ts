@@ -1,4 +1,4 @@
-export type { Venta, CrearVenta, VentaConCliente, TipoVenta, MedioPago, EstadoCuota, CuotaCalculada } from './ventas.types'
+export type { Venta, CrearVenta, VentaConCliente, TipoVenta, MedioPago, EstadoCuota, CuotaCalculada, ProductoVenta } from './ventas.types'
 export { useVentasStore } from './ventas.store'
 export { calcularCuotas, validarVenta } from './ventas.utils'
 export { FormVenta } from './components/FormVenta'

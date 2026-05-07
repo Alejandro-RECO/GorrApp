@@ -382,6 +382,36 @@ export type Database = {
           },
         ]
       }
+      ventas_productos: {
+        Row: {
+          id: string
+          venta_id: string
+          producto_id: string
+          cantidad: number
+          negocio_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          venta_id: string
+          producto_id: string
+          cantidad: number
+          negocio_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          venta_id?: string
+          producto_id?: string
+          cantidad?: number
+          negocio_id?: string
+          user_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

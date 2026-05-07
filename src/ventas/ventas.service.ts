@@ -17,20 +17,23 @@ export const VentasService = {
   async crear(datos: CrearVenta): Promise<Venta> {
     const { userId, negocioId } = getAuthContext()
 
+    // Omitir 'productos' del insert — no existe en la tabla ventas
+    const { productos, ...datosVenta } = datos
+
     // 1. Insertar venta
     const { data: venta, error } = await supabase
       .from('ventas')
-      .insert({ ...datos, user_id: userId, negocio_id: negocioId })
+      .insert({ ...datosVenta, user_id: userId, negocio_id: negocioId })
       .select()
       .single()
 
     if (error) throw new Error(error.message)
     const ventaId = (venta as unknown as Venta).id
 
-    if (datos.tipo === 'contado') {
-      // 2. Registrar ingreso en caja — rollback venta si falla
-      const fecha = new Date().toISOString().split('T')[0]
-      try {
+    try {
+      if (datos.tipo === 'contado') {
+        // 2a. Registrar ingreso en caja
+        const fecha = new Date().toISOString().split('T')[0]
         const { error: errorCaja } = await supabase
           .from('movimientos_caja')
           .insert({
@@ -46,33 +49,61 @@ export const VentasService = {
           .single()
 
         if (errorCaja) throw new Error(errorCaja.message)
-      } catch (err) {
-        await supabase.from('ventas').delete().eq('id', ventaId)
-        throw err
+      } else {
+        // 2b. Crear cuotas para venta fiada
+        const cuotas = calcularCuotas({
+          total: datos.total,
+          tipo: datos.tipo,
+          fechaVenta: new Date(),
+        })
+
+        const { error: errorCuotas } = await supabase
+          .from('cuotas')
+          .insert(
+            cuotas.map(c => ({
+              numero_cuota: c.numero_cuota,
+              valor: c.valor,
+              fecha_vencimiento: c.fecha_vencimiento,
+              estado: c.estado,
+              venta_id: ventaId,
+              user_id: userId,
+              negocio_id: negocioId,
+            }))
+          )
+
+        if (errorCuotas) throw new Error(errorCuotas.message)
       }
-    } else {
-      // 2. Crear cuotas para venta fiada
-      const cuotas = calcularCuotas({
-        total: datos.total,
-        tipo: datos.tipo,
-        fechaVenta: new Date(),
-      })
 
-      const { error: errorCuotas } = await supabase
-        .from('cuotas')
-        .insert(
-          cuotas.map(c => ({
-            numero_cuota: c.numero_cuota,
-            valor: c.valor,
-            fecha_vencimiento: c.fecha_vencimiento,
-            estado: c.estado,
-            venta_id: ventaId,
-            user_id: userId,
-            negocio_id: negocioId,
-          }))
-        )
+      // 3. Registrar productos vendidos y descontar stock
+      if (productos?.length) {
+        for (const { producto_id, cantidad } of productos) {
+          // Insert línea de venta
+          const { error: eLinea } = await supabase
+            .from('ventas_productos')
+            .insert({ venta_id: ventaId, producto_id, cantidad, user_id: userId, negocio_id: negocioId })
+          if (eLinea) throw new Error(eLinea.message)
 
-      if (errorCuotas) throw new Error(errorCuotas.message)
+          // Leer stock actual
+          const { data: prod, error: eLeer } = await supabase
+            .from('productos')
+            .select('stock_actual')
+            .eq('id', producto_id)
+            .single()
+          if (eLeer) throw new Error(eLeer.message)
+
+          // Descontar — no baja de 0
+          const nuevoStock = Math.max(0, ((prod as { stock_actual: number } | null)?.stock_actual ?? 0) - cantidad)
+          const { error: eUpdate } = await supabase
+            .from('productos')
+            .update({ stock_actual: nuevoStock })
+            .eq('id', producto_id)
+          if (eUpdate) throw new Error(eUpdate.message)
+        }
+      }
+    } catch (err) {
+      // Rollback manual: eliminar venta si cualquier paso posterior falla
+      await supabase.from('ventas').delete().eq('id', ventaId)
+      throw err
     }
 
     return venta as unknown as Venta

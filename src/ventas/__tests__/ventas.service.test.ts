@@ -90,6 +90,49 @@ describe('VentasService', () => {
       expect(calls).toContain('ventas')
       expect(calls).toContain('cuotas')
     })
+
+    it('con productos inserta en ventas_productos', async () => {
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockVenta, error: null })  // venta
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })  // caja
+        .mockResolvedValueOnce({ data: { stock_actual: 10 }, error: null }) // read stock
+        // update stock usa thenable
+
+      await VentasService.crear({
+        ...datosContado,
+        productos: [{ producto_id: 'p-1', cantidad: 3 }],
+      })
+
+      const calls = mockSupabase.from.mock.calls.map((c: string[]) => c[0])
+      expect(calls).toContain('ventas_productos')
+    })
+
+    it('con productos decrementa stock_actual en productos', async () => {
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockVenta, error: null })
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })
+        .mockResolvedValueOnce({ data: { stock_actual: 10 }, error: null })
+
+      await VentasService.crear({
+        ...datosContado,
+        productos: [{ producto_id: 'p-1', cantidad: 3 }],
+      })
+
+      const calls = mockSupabase.from.mock.calls.map((c: string[]) => c[0])
+      expect(calls).toContain('productos')
+      expect(mockQueryBuilder.update).toHaveBeenCalled()
+    })
+
+    it('sin productos no toca ventas_productos ni productos', async () => {
+      mockQueryBuilder.single
+        .mockResolvedValueOnce({ data: mockVenta, error: null })
+        .mockResolvedValueOnce({ data: { id: 'mov-1' }, error: null })
+
+      await VentasService.crear(datosContado)
+
+      const calls = mockSupabase.from.mock.calls.map((c: string[]) => c[0])
+      expect(calls).not.toContain('ventas_productos')
+    })
   })
 
   describe('obtenerTodos', () => {

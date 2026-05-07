@@ -14,12 +14,20 @@ export interface Venta {
   updated_at: string
 }
 
+export interface ProductoVenta {
+  producto_id: string
+  cantidad: number
+  nombre: string
+  stock_actual: number
+}
+
 export type CrearVenta = {
   cliente_id: string
   total: number
   tipo: TipoVenta
   medio_pago: MedioPago
   notas?: string | null
+  productos?: Pick<ProductoVenta, 'producto_id' | 'cantidad'>[]
 }
 
 export interface CuotaCalculada {
