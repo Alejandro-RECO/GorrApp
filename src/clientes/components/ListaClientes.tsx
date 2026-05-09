@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ChevronRight } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,12 +8,14 @@ import { formatearPesos } from '@/shared/lib/utils'
 import { useClientesStore, calcularDeudaTotal, estaEnMora } from '@/clientes'
 import type { Cliente } from '@/clientes'
 import { FormCliente } from './FormCliente'
+import { HistorialComprasSheet } from './HistorialComprasSheet'
 
 export function ListaClientes() {
   const { clientes, cargando, error, cargarClientes, agregarCliente, actualizarCliente, eliminarCliente } =
     useClientesStore()
   const [editando, setEditando] = useState<Cliente | null>(null)
   const [creando, setCreando] = useState(false)
+  const [verHistorial, setVerHistorial] = useState<Cliente | null>(null)
 
   useEffect(() => {
     cargarClientes()
@@ -73,7 +76,11 @@ export function ListaClientes() {
             const enMora = estaEnMora(cliente.cuotas)
 
             return (
-              <Card key={cliente.id} className="p-4">
+              <Card
+                key={cliente.id}
+                className="p-4 cursor-pointer active:opacity-80 transition-opacity"
+                onClick={() => setVerHistorial(cliente)}
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -92,12 +99,12 @@ export function ListaClientes() {
                     )}
                   </div>
 
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Button
                       size="sm"
                       variant="outline"
                       className="min-h-11"
-                      onClick={() => setEditando(cliente)}
+                      onClick={e => { e.stopPropagation(); setEditando(cliente) }}
                     >
                       Editar
                     </Button>
@@ -105,10 +112,11 @@ export function ListaClientes() {
                       size="sm"
                       variant="outline"
                       className="min-h-11 text-destructive"
-                      onClick={() => eliminarCliente(cliente.id)}
+                      onClick={e => { e.stopPropagation(); eliminarCliente(cliente.id) }}
                     >
                       Eliminar
                     </Button>
+                    <ChevronRight className="size-4 text-muted-foreground" />
                   </div>
                 </div>
               </Card>
@@ -116,6 +124,12 @@ export function ListaClientes() {
           })}
         </div>
       )}
+
+      <HistorialComprasSheet
+        cliente={verHistorial}
+        open={verHistorial !== null}
+        onClose={() => setVerHistorial(null)}
+      />
     </div>
   )
 }

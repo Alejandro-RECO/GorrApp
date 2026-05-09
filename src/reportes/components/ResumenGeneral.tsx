@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { TrendingUp, TrendingDown, Banknote, Smartphone, CreditCard, AlertTriangle } from 'lucide-react'
+import { TrendingUp, TrendingDown, Banknote, Smartphone, CreditCard, AlertTriangle, Package } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Progress } from '@/components/ui/progress'
 import { formatearPesos } from '@/shared/lib/utils'
@@ -49,8 +49,8 @@ export function ResumenGeneralPanel() {
   if (cargando && !resumen) {
     return (
       <div className="grid grid-cols-2 gap-3">
-        {[1, 2, 3, 4, 5].map(i => (
-          <Skeleton key={i} className={cn('h-24 rounded-xl', i === 5 && 'col-span-2')} />
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <Skeleton key={i} className={cn('h-24 rounded-xl', i === 6 && 'col-span-2')} />
         ))}
       </div>
     )
@@ -92,6 +92,13 @@ export function ResumenGeneralPanel() {
           label="Saldo digital"
           value={formatearPesos(resumen.totalDigital)}
           Icon={Smartphone}
+        />
+        <StatCard
+          label="Valor en inventario"
+          value={formatearPesos(resumen.valorInventario)}
+          sub="a precio de venta"
+          Icon={Package}
+          accent="neutral"
         />
       </div>
 

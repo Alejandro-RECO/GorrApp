@@ -31,11 +31,19 @@ export const ReportesService = {
       .order('created_at', { ascending: false })
     if (eCompras) throw new Error(eCompras.message)
 
+    const { data: productosData, error: eProductos } = await supabase
+      .from('productos')
+      .select('precio_venta, stock_actual')
+      .eq('activo', true)
+    if (eProductos) throw new Error(eProductos.message)
+
     const ventas = (ventasData || []) as Venta[]
     const cuotas = (cuotasData || []) as Cuota[]
     const movimientos = (movimientosData || []) as MovimientoCaja[]
     const totalCompras = ((comprasData || []) as { total: number }[])
       .reduce((sum, c) => sum + c.total, 0)
+    const valorInventario = ((productosData || []) as { precio_venta: number; stock_actual: number }[])
+      .reduce((sum, p) => sum + p.precio_venta * p.stock_actual, 0)
 
     const totalVendido = calcularTotalVendido(ventas)
     const totalCartera = calcularTotalCartera(cuotas)
@@ -62,6 +70,7 @@ export const ReportesService = {
       totalDigital: calcSaldo('digital'),
       rentabilidad: totalVendido - totalCompras,
       clientesEnMora: clienteIdsEnMora.size,
+      valorInventario,
     }
   },
 

@@ -23,3 +23,21 @@ export type CrearCliente = {
 }
 
 export type ActualizarCliente = Partial<CrearCliente>
+
+export interface ProductoEnVenta {
+  producto_id: string
+  nombre: string
+  cantidad: number
+  precio_venta: number
+}
+
+export interface VentaConProductos {
+  id: string
+  total: number
+  tipo: 'contado' | 'fiado_una_cuota' | 'fiado_dos_cuotas'
+  medio_pago: 'efectivo' | 'digital'
+  created_at: string
+  notas: string | null
+  productos: ProductoEnVenta[]
+  cuotas: CuotaResumen[]
+}

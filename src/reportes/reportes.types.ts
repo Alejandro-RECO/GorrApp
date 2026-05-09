@@ -5,6 +5,7 @@ export interface ResumenGeneral {
   totalDigital: number
   rentabilidad: number
   clientesEnMora: number
+  valorInventario: number
 }
 
 export interface VentasPeriodo {
