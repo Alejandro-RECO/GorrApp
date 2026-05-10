@@ -24,3 +24,12 @@ export interface ItemCartera {
   diasVencido: number
   saldo: number
 }
+
+export interface ProductoInventario {
+  id: string
+  nombre: string
+  stock_actual: number
+  precio_venta: number
+  valor_total: number
+  stock_bajo: boolean
+}

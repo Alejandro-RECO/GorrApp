@@ -2,7 +2,7 @@ import { supabase } from '@/shared/lib/supabase'
 import type { Venta } from '@/ventas'
 import type { Cuota, CuotaConCliente } from '@/cobros'
 import type { MovimientoCaja } from '@/caja'
-import type { ResumenGeneral } from './reportes.types'
+import type { ResumenGeneral, ProductoInventario } from './reportes.types'
 import { calcularTotalVendido, calcularTotalCartera } from './reportes.utils'
 
 export const ReportesService = {
@@ -83,6 +83,26 @@ export const ReportesService = {
 
     if (error) throw new Error(error.message)
     return (data || []) as Venta[]
+  },
+
+  async obtenerDetalleInventario(): Promise<ProductoInventario[]> {
+    const { data, error } = await supabase
+      .from('productos')
+      .select('id, nombre, precio_venta, stock_actual, stock_minimo')
+      .eq('activo', true)
+
+    if (error) throw new Error(error.message)
+
+    return ((data || []) as { id: string; nombre: string; precio_venta: number; stock_actual: number; stock_minimo: number }[])
+      .map(p => ({
+        id: p.id,
+        nombre: p.nombre,
+        stock_actual: p.stock_actual,
+        precio_venta: p.precio_venta,
+        valor_total: p.stock_actual * p.precio_venta,
+        stock_bajo: p.stock_actual <= p.stock_minimo,
+      }))
+      .sort((a, b) => b.valor_total - a.valor_total)
   },
 
   async obtenerCarteraPendiente(): Promise<CuotaConCliente[]> {

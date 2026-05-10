@@ -129,4 +129,71 @@ describe('ReportesService', () => {
       expect(resultado[0].estado).toBe('pendiente')
     })
   })
+
+  describe('obtenerDetalleInventario', () => {
+    const mockProducto = {
+      id: 'p-1',
+      nombre: 'Gorra NY',
+      precio_venta: 30000,
+      stock_actual: 5,
+      stock_minimo: 2,
+    }
+
+    it('consulta tabla productos con activo = true', async () => {
+      mockQueryBuilder.eq.mockResolvedValueOnce({ data: [mockProducto], error: null })
+
+      await ReportesService.obtenerDetalleInventario()
+
+      expect(mockSupabase.from).toHaveBeenCalledWith('productos')
+      expect(mockQueryBuilder.eq).toHaveBeenCalledWith('activo', true)
+    })
+
+    it('calcula valor_total = stock_actual * precio_venta', async () => {
+      mockQueryBuilder.eq.mockResolvedValueOnce({ data: [mockProducto], error: null })
+
+      const resultado = await ReportesService.obtenerDetalleInventario()
+
+      expect(resultado[0].valor_total).toBe(150000)
+    })
+
+    it('marca stock_bajo = false cuando stock_actual > stock_minimo', async () => {
+      mockQueryBuilder.eq.mockResolvedValueOnce({ data: [mockProducto], error: null })
+
+      const resultado = await ReportesService.obtenerDetalleInventario()
+
+      expect(resultado[0].stock_bajo).toBe(false)
+    })
+
+    it('marca stock_bajo = true cuando stock_actual <= stock_minimo', async () => {
+      const productoConStockBajo = { ...mockProducto, stock_actual: 1 }
+      mockQueryBuilder.eq.mockResolvedValueOnce({ data: [productoConStockBajo], error: null })
+
+      const resultado = await ReportesService.obtenerDetalleInventario()
+
+      expect(resultado[0].stock_bajo).toBe(true)
+    })
+
+    it('retorna array vacío si no hay productos activos', async () => {
+      mockQueryBuilder.eq.mockResolvedValueOnce({ data: [], error: null })
+
+      const resultado = await ReportesService.obtenerDetalleInventario()
+
+      expect(resultado).toHaveLength(0)
+    })
+
+    it('ordena por valor_total descendente', async () => {
+      const productos = [
+        { ...mockProducto, id: 'p-1', nombre: 'Gorra A', stock_actual: 1, precio_venta: 10000 },
+        { ...mockProducto, id: 'p-2', nombre: 'Gorra B', stock_actual: 10, precio_venta: 30000 },
+        { ...mockProducto, id: 'p-3', nombre: 'Gorra C', stock_actual: 3, precio_venta: 20000 },
+      ]
+      mockQueryBuilder.eq.mockResolvedValueOnce({ data: productos, error: null })
+
+      const resultado = await ReportesService.obtenerDetalleInventario()
+
+      expect(resultado[0].id).toBe('p-2') // 300000
+      expect(resultado[1].id).toBe('p-3') // 60000
+      expect(resultado[2].id).toBe('p-1') // 10000
+    })
+  })
 })

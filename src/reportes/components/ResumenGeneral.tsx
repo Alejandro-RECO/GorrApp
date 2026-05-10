@@ -12,15 +12,17 @@ function StatCard({
   sub,
   Icon,
   accent,
+  className,
 }: {
   label: string
   value: string
   sub?: string
   Icon: React.ComponentType<{ className?: string }>
   accent?: 'green' | 'red' | 'neutral'
+  className?: string
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+    <div className={cn('flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10', className)}>
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground font-medium">{label}</span>
         <Icon className="size-4 text-muted-foreground" />
@@ -49,8 +51,8 @@ export function ResumenGeneralPanel() {
   if (cargando && !resumen) {
     return (
       <div className="grid grid-cols-2 gap-3">
-        {[1, 2, 3, 4, 5, 6].map(i => (
-          <Skeleton key={i} className={cn('h-24 rounded-xl', i === 6 && 'col-span-2')} />
+        {[1, 2, 3, 4, 5].map(i => (
+          <Skeleton key={i} className={cn('h-24 rounded-xl', i === 5 && 'col-span-2')} />
         ))}
       </div>
     )
@@ -99,6 +101,7 @@ export function ResumenGeneralPanel() {
           sub="a precio de venta"
           Icon={Package}
           accent="neutral"
+          className="col-span-2"
         />
       </div>
 
